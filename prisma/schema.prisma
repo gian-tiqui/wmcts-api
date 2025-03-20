@@ -1,0 +1,207 @@
+/*
+ * Formatting Format Example:
+ * 
+ * model Example {
+ *    pk             Int           @id @default(autoincrement())
+ *    field1         String        
+ *    
+ *    Relations should be separated
+ *    
+ *    examples       Example[]
+ * }
+*/
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id                  Int           @id @default(autoincrement())
+  firstName           String        
+  middleName          String?
+  lastName            String
+  email               String        @unique
+  username            String        @unique
+  password            String
+  isDeleted           Boolean       @default(false)
+  createdAt           DateTime      @default(now())
+  updatedAt           DateTime      @default(now())
+  refreshToken        String?
+  secretAnswer        String?
+
+  deptId              Int
+  department          Department    @relation(fields: [deptId], references: [id])
+  roles               Role[]
+  logs                Log[]
+  comments            Comment[]
+  secretQuestionId    Int?
+  secretQuestion      SecretQuestion? @relation(fields: [secretQuestionId], references: [id])      
+  issuedTickets       Ticket[]      @relation("Issued")
+  assignedTickets     Ticket[]      @relation("Assigned")
+}
+
+model Role {
+  id                  Int           @id @default(autoincrement())
+  name                String        @unique
+  createdAt           DateTime      @default(now())
+  updatedAt           DateTime      @default(now()) 
+
+  userId              Int
+  user                User          @relation(fields: [userId], references: [id])
+}
+
+model Department {
+  id                  Int           @id @default(autoincrement())
+  name                String        @unique
+  code                String        @unique
+  createdAt           DateTime      @default(now())
+  updatedAt           DateTime      @default(now())
+
+  users               User[]
+  categories          Category[]
+}
+
+model Category {
+  id                  Int           @id @default(autoincrement())
+  name                String        @unique
+  createdAt           DateTime      @default(now())
+  updatedAt           DateTime      @updatedAt
+
+  deptId              Int
+  department          Department    @relation(fields: [deptId], references: [id])
+}
+
+model Ticket {
+  id                  Int           @id @default(autoincrement())
+  title               String
+  description         String        @db.Text      
+  createdAt           DateTime      @default(now())
+  updatedAt           DateTime      @updatedAt
+  acknowledgedAt      DateTime?
+
+  issuerId            Int
+  issuer              User          @relation("Issued", fields: [issuerId], references: [id])        
+  assignedUserId      Int?
+  assignedUser        User?         @relation("Assigned", fields: [assignedUserId], references: [id]) 
+  statusId            Int
+  status              Status        @relation(fields: [statusId], references: [id])
+  serviceReports      ServiceReport[]
+  comments            Comment[]
+  activities          Activity[]
+}
+
+model Activity {
+  id                  Int           @id @default(autoincrement())
+  activity            String
+  createdAt           DateTime      @default(now())
+  updatedAt           DateTime      @updatedAt
+
+  ticketId            Int
+  ticket              Ticket        @relation(fields: [ticketId], references: [id])  
+}
+
+model PriorityLevel {
+  id                  Int           @id @default(autoincrement())
+  name                String        @unique
+  createdAt           DateTime      @default(now())
+  updatedAt           DateTime      @updatedAt  
+}
+
+model Comment {
+  id                  Int           @id @default(autoincrement())
+  comment             String        @db.Text
+  createdAt           DateTime      @default(now())
+  updatedAt           DateTime      @updatedAt
+
+  userId              Int
+  user                User          @relation(fields: [userId], references: [id])
+  ticketId            Int
+  ticket              Ticket        @relation(fields: [ticketId], references: [id])
+}
+
+model ServiceReport {
+  id                  Int           @id @default(autoincrement())
+  createdAt           DateTime      @default(now())
+  updatedAt           DateTime      @updatedAt
+
+  imageLocations      ImageLocation[]
+  ticketId            Int
+  ticket              Ticket        @relation(fields: [ticketId], references: [id])
+}
+
+model ImageLocation {
+  id                  Int           @id @default(autoincrement())
+  path                String        @unique
+  createdAt           DateTime      @default(now())
+  updatedAt           DateTime      @updatedAt
+
+  serviceReportId     Int
+  serviceReport       ServiceReport @relation(fields: [serviceReportId], references: [id])
+}
+
+model LogType {
+  id                  Int           @id @default(autoincrement())
+  type                String        @unique
+  createdAt           DateTime      @default(now())
+  updatedAt           DateTime      @updatedAt
+
+  logs                Log[]
+}
+
+model LogMethod {
+  id                  Int           @id @default(autoincrement())
+  method              String        @unique
+  createdAt           DateTime      @default(now())
+  updatedAt           DateTime      @updatedAt
+
+  logs                Log[]
+}
+
+model Log {
+  id                  Int           @id @default(autoincrement())
+  previousName        String
+  previousDescription String
+  createdAt           DateTime      @default(now())
+  updatedAt           DateTime      @updatedAt
+
+  typeId              Int
+  type                LogType       @relation(fields: [typeId], references: [id])     
+  methodId            Int
+  method              LogMethod        @relation(fields: [methodId], references: [id])   
+  loggerId            Int
+  logger              User          @relation(fields: [loggerId], references: [id])
+}
+
+/*
+ * 1 - new
+ * 2 - viewed
+ * 3 - assigned
+ * 4 - acknowledged
+ * 5 - resolved
+ * 6 - closed-resolved
+ * 7 - cancelled
+ * 8 - reopened
+*/
+
+model Status {
+  id                  Int           @id @default(autoincrement())
+  type                String        @unique
+  createdAt           DateTime      @default(now())
+  updatedAt           DateTime      @updatedAt
+
+  tickets             Ticket[]
+}
+
+model SecretQuestion {
+  id                  Int           @id @default(autoincrement())
+  question            String
+  createdAt           DateTime      @default(now())
+  updatedAt           DateTime      @updatedAt
+
+  user                User[]
+}
