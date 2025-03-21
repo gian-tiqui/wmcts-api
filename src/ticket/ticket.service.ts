@@ -6,6 +6,10 @@ import { PrismaService } from 'src/prisma/prisma.service';
 import extractUserId from 'src/utils/functions/extractUserId';
 import notFound from 'src/utils/functions/notFound';
 import { JwtService } from '@nestjs/jwt';
+import { FindAllDto } from 'src/utils/common/find-all.dto';
+import { Prisma } from '@prisma/client';
+import { PaginationDefault } from 'src/utils/enums/enum';
+import convertDatesToString from 'src/utils/functions/convertDatesToString';
 
 @Injectable()
 export class TicketService {
@@ -30,19 +34,78 @@ export class TicketService {
         data: {
           ...createTicketDto,
           issuerId: user.id,
+          statusId: 1,
         },
       });
+
+      return {
+        message: 'Ticket created successfully.',
+      };
     } catch (error) {
       errorHandler(error, this.logger);
     }
   }
 
-  findAll() {
-    return `This action returns all ticket`;
+  async findAll(query: FindAllDto) {
+    try {
+      const { search, offset, limit, statusId, sortBy, sortOrder } = query;
+      const where: Prisma.TicketWhereInput = {
+        ...(search && {
+          OR: [
+            {
+              title: { contains: search, mode: 'insensitive' },
+            },
+            {
+              title: { contains: search, mode: 'insensitive' },
+            },
+          ],
+        }),
+        statusId,
+      };
+      const orderBy = sortBy ? { [sortBy]: sortOrder || 'asc' } : undefined;
+
+      const tickets = await this.prismaService.ticket.findMany({
+        where,
+        orderBy,
+        skip: offset || PaginationDefault.OFFSET,
+        take: limit || PaginationDefault.LIMIT,
+        include: {
+          category: true,
+          issuer: { include: { department: true } },
+          assignedUser: true,
+        },
+      });
+      const count = await this.prismaService.ticket.count({ where });
+
+      convertDatesToString(tickets);
+
+      console.log(tickets[0]);
+
+      return {
+        message: `Tickets loaded successfully.`,
+        tickets,
+        count,
+      };
+    } catch (error) {
+      errorHandler(error, this.logger);
+    }
   }
 
-  findOne(id: number) {
-    return `This action returns a #${id} ticket`;
+  async findOne(id: number) {
+    try {
+      const ticket = await this.prismaService.ticket.findFirst({
+        where: { id },
+      });
+
+      if (!ticket) notFound('Ticket', id);
+
+      return {
+        message: `Ticket with the id ${id} loaded successfully.`,
+        ticket,
+      };
+    } catch (error) {
+      errorHandler(error, this.logger);
+    }
   }
 
   update(id: number, updateTicketDto: UpdateTicketDto) {

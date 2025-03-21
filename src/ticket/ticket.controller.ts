@@ -8,12 +8,14 @@ import {
   Delete,
   Logger,
   Req,
+  Query,
 } from '@nestjs/common';
 import { TicketService } from './ticket.service';
 import { CreateTicketDto } from './dto/create-ticket.dto';
 import { UpdateTicketDto } from './dto/update-ticket.dto';
 import errorHandler from 'src/utils/functions/errorHandler';
 import extractAccessToken from 'src/utils/functions/extractAccessToken';
+import { FindAllDto } from 'src/utils/common/find-all.dto';
 
 @Controller('ticket')
 export class TicketController {
@@ -33,8 +35,8 @@ export class TicketController {
   }
 
   @Get()
-  findAll() {
-    return this.ticketService.findAll();
+  findAll(@Query() query: FindAllDto) {
+    return this.ticketService.findAll(query);
   }
 
   @Get(':id')

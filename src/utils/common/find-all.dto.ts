@@ -99,4 +99,9 @@ export class FindAllDto {
     return converted;
   })
   startingPoint: number;
+
+  @IsInt()
+  @IsOptional()
+  @Transform(({ value }) => parseInt(value, 10))
+  statusId?: number;
 }

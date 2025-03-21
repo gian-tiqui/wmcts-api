@@ -20,8 +20,4 @@ export class CreateTicketDto {
   @IsOptional()
   @IsString()
   description: string;
-
-  @IsNotEmpty()
-  @IsInt()
-  statusId: number;
 }
