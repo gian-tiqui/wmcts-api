@@ -7,6 +7,11 @@
  *    
  *    Relations should be separated
  *    
+ *    fk             Int
+ *    fkObject       Fk @relation(fields: [fk], references: [referenceId])
+ *    
+ *    Collections should be at the bottom level
+ *
  *    examples       Example[]
  * }
 */
@@ -36,11 +41,12 @@ model User {
 
   deptId              Int
   department          Department    @relation(fields: [deptId], references: [id])
-  roles               Role[]
-  logs                Log[]
-  comments            Comment[]
   secretQuestionId    Int?
-  secretQuestion      SecretQuestion? @relation(fields: [secretQuestionId], references: [id])      
+  secretQuestion      SecretQuestion? @relation(fields: [secretQuestionId], references: [id])   
+
+  comments            Comment[]
+  roles               Role[]
+  logs                Log[]   
   issuedTickets       Ticket[]      @relation("Issued")
   assignedTickets     Ticket[]      @relation("Assigned")
 }
@@ -64,6 +70,7 @@ model Department {
 
   users               User[]
   categories          Category[]
+  tickets             Ticket[]
 }
 
 model Category {
@@ -74,6 +81,8 @@ model Category {
 
   deptId              Int
   department          Department    @relation(fields: [deptId], references: [id])
+
+  tickets             Ticket[]
 }
 
 model Ticket {
@@ -90,6 +99,13 @@ model Ticket {
   assignedUser        User?         @relation("Assigned", fields: [assignedUserId], references: [id]) 
   statusId            Int
   status              Status        @relation(fields: [statusId], references: [id])
+  deptId              Int
+  department          Department    @relation(fields: [deptId], references: [id])
+  categoryId          Int
+  category            Category      @relation(fields: [categoryId], references: [id])
+  priorityLevelId     Int
+  priorityLevel       PriorityLevel @relation(fields: [priorityLevelId], references: [id])
+
   serviceReports      ServiceReport[]
   comments            Comment[]
   activities          Activity[]
@@ -110,6 +126,8 @@ model PriorityLevel {
   name                String        @unique
   createdAt           DateTime      @default(now())
   updatedAt           DateTime      @updatedAt  
+
+  tickets             Ticket[]
 }
 
 model Comment {
@@ -129,9 +147,10 @@ model ServiceReport {
   createdAt           DateTime      @default(now())
   updatedAt           DateTime      @updatedAt
 
-  imageLocations      ImageLocation[]
   ticketId            Int
   ticket              Ticket        @relation(fields: [ticketId], references: [id])
+
+  imageLocations      ImageLocation[]
 }
 
 model ImageLocation {
@@ -178,15 +197,16 @@ model Log {
 }
 
 /*
- * 1 - new
- * 2 - viewed
- * 3 - assigned
- * 4 - acknowledged
- * 5 - resolved
- * 6 - closed-resolved
- * 7 - cancelled
- * 8 - reopened
-*/
+ * new
+ * acknowledged
+ * assigned
+ * escalated 
+ * resolved
+ * closed - can be reopened or closed-resolved
+ * closed - resolved 
+ * cancelled
+ * onhold - show card for the reason
+ */
 
 model Status {
   id                  Int           @id @default(autoincrement())

@@ -4,7 +4,22 @@ import * as argon from 'argon2';
 const prismaClient = new PrismaClient();
 
 const seedEditTypes = async () => {
-  const logTypes: string[] = ['FLOOR', 'ROOM', 'USER', 'ROOM_IMAGES'];
+  const logTypes: string[] = [
+    'USER',
+    'ROLE',
+    'DEPARTMENT',
+    'CATEGORY',
+    'TICKET',
+    'ACTIVITY',
+    'COMMENT',
+    'SERVICE_REPORT',
+    'IMAGE_LOCATION',
+    'LOG_TYPE',
+    'LOG_METHOD',
+    'LOG',
+    'STATUS',
+    'SECRET_QUESTION',
+  ];
 
   for (const logType of logTypes) {
     await prismaClient.logType.upsert({
@@ -159,7 +174,7 @@ const seedUsers = async () => {
       firstName: 'Michael Gian',
       lastName: 'Tiqui',
       username: 'GTIQUI',
-      email: 'gian.tiqui.dev@example.com',
+      email: 'gian.tiqui.dev@gmail.com',
       password: 'abcd_123',
       deptId: 3,
     },
@@ -182,10 +197,50 @@ const seedUsers = async () => {
   console.log('User seeded.');
 };
 
+const seedStatus = async () => {
+  const statuses: string[] = [
+    'NEW',
+    'ACKNOWLEDGED',
+    'ASSIGNED',
+    'ESCALATED',
+    'RESOLVED',
+    'CLOSED',
+    'CLOSED-RESOLVED',
+    'CANCELLED',
+    'ON-HOLD',
+  ];
+
+  await prismaClient.status.createMany({
+    data: [
+      ...statuses.map((status) => ({
+        type: status,
+      })),
+    ],
+  });
+
+  console.log('Status seeded');
+};
+
+const seedPriorityLevel = async () => {
+  const priorityLevels: string[] = ['LOW', 'MEDIUM', 'HIGH'];
+
+  await prismaClient.priorityLevel.createMany({
+    data: [
+      ...priorityLevels.map((priorityLevel: string) => ({
+        name: priorityLevel,
+      })),
+    ],
+  });
+
+  console.log('Priority Level Seeded');
+};
+
 const main = async () => {
+  await seedStatus();
   await seedEditMethods();
   await seedEditTypes();
   await seedDepartments();
+  await seedPriorityLevel();
   await seedUsers();
   await seedCategories();
   await seedQuestions();

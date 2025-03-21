@@ -56,6 +56,20 @@ export class DepartmentController {
   }
 
   @RateLimit({
+    keyPrefix: 'find-department-categories-by-id',
+    points: 10,
+    duration: 60,
+    errorMessage: 'Please wait before finding a department categories.',
+  })
+  @Get(':deptId/categories')
+  findDepartmentCategoriesByDepartmentId(
+    @Param('deptId', ParseIntPipe) deptId: number,
+    @Query() query: FindAllDto,
+  ) {
+    return this.departmentService.findDepartmentCategoriesById(deptId, query);
+  }
+
+  @RateLimit({
     keyPrefix: 'update-department',
     points: 10,
     duration: 60,

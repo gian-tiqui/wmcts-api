@@ -6,6 +6,8 @@ import { ServeStaticModule } from '@nestjs/serve-static';
 import { ConfigModule } from '@nestjs/config/dist';
 import { DepartmentModule } from './department/department.module';
 import { SecretQuestionModule } from './secret-question/secret-question.module';
+import { TicketModule } from './ticket/ticket.module';
+import { PriorityLevelModule } from './priority-level/priority-level.module';
 
 @Module({
   imports: [
@@ -18,6 +20,8 @@ import { SecretQuestionModule } from './secret-question/secret-question.module';
     UserModule,
     DepartmentModule,
     SecretQuestionModule,
+    TicketModule,
+    PriorityLevelModule,
   ],
   controllers: [],
   providers: [],

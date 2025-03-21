@@ -59,6 +59,36 @@ export class DepartmentService {
     return `This action returns a #${id} department`;
   }
 
+  async findDepartmentCategoriesById(deptId: number, query: FindAllDto) {
+    try {
+      const { search, offset, limit, sortBy, sortOrder } = query;
+      const where: Prisma.CategoryWhereInput = {
+        ...(search && {
+          OR: [{ name: { contains: search, mode: 'insensitive' } }],
+        }),
+        deptId,
+      };
+      const orderBy = sortBy ? { [sortBy]: sortOrder || 'asc' } : undefined;
+
+      const categories = await this.prismaService.category.findMany({
+        where,
+        orderBy,
+        skip: offset || PaginationDefault.OFFSET,
+        take: limit || PaginationDefault.LIMIT,
+      });
+
+      const count = await this.prismaService.category.count({ where });
+
+      return {
+        message: `Categories of the department ${deptId} loaded successfully.`,
+        categories,
+        count,
+      };
+    } catch (error) {
+      errorHandler(error, this.logger);
+    }
+  }
+
   updateDepartmentById(id: number, updateDepartmentDto: UpdateDepartmentDto) {
     return `This action updates a #${id} department`;
   }
