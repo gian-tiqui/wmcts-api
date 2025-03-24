@@ -68,6 +68,20 @@ export class UserController {
     return this.userService.findUserById(userId);
   }
 
+  @Get(':userId/ticket')
+  @RateLimit({
+    duration: 60,
+    errorMessage: `Please wait before finding the user's tickets`,
+    keyPrefix: 'find-user-tickets',
+    points: 10,
+  })
+  findUserTicketsById(
+    @Param('userId', ParseIntPipe) userId: number,
+    @Query() query: FindAllDto,
+  ) {
+    return this.userService.findUserTicketsByUserId(userId, query);
+  }
+
   @Get(':userId/secret')
   @RateLimit({
     duration: 60,

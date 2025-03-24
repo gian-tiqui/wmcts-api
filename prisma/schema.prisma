@@ -45,7 +45,7 @@ model User {
   secretQuestion      SecretQuestion? @relation(fields: [secretQuestionId], references: [id])   
 
   comments            Comment[]
-  roles               Role[]
+  roles               Role[]        @relation("UserRoles")
   logs                Log[]   
   issuedTickets       Ticket[]      @relation("Issued")
   assignedTickets     Ticket[]      @relation("Assigned")
@@ -57,8 +57,7 @@ model Role {
   createdAt           DateTime      @default(now())
   updatedAt           DateTime      @default(now()) 
 
-  userId              Int
-  user                User          @relation(fields: [userId], references: [id])
+  users               User[]        @relation("UserRoles")
 }
 
 model Department {
@@ -140,6 +139,8 @@ model Comment {
   user                User          @relation(fields: [userId], references: [id])
   ticketId            Int
   ticket              Ticket        @relation(fields: [ticketId], references: [id])
+
+  imageLocations      ImageLocation[]
 }
 
 model ServiceReport {
@@ -161,6 +162,8 @@ model ImageLocation {
 
   serviceReportId     Int
   serviceReport       ServiceReport @relation(fields: [serviceReportId], references: [id])
+  commentId           Int
+  comment             Comment       @relation(fields: [commentId], references: [id])
 }
 
 model LogType {

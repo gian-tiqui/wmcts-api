@@ -169,6 +169,16 @@ const seedCategories = async () => {
 };
 
 const seedUsers = async () => {
+  // Ensure roles exist before assigning them
+  const roleNames = ['user', 'admin'];
+  for (const role of roleNames) {
+    await prismaClient.role.upsert({
+      where: { name: role },
+      update: {},
+      create: { name: role },
+    });
+  }
+
   const users = [
     {
       firstName: 'Michael Gian',
@@ -177,24 +187,35 @@ const seedUsers = async () => {
       email: 'gian.tiqui.dev@gmail.com',
       password: 'abcd_123',
       deptId: 3,
+      roleNames: ['user', 'admin'],
+    },
+    {
+      firstName: 'Michael Gian',
+      lastName: 'Tiqui',
+      username: 'GTIQUI2',
+      email: 'gian.tiqui.devs@gmail.com',
+      password: 'abcd_123',
+      deptId: 3,
+      roleNames: ['user'],
     },
   ];
 
   for (const user of users) {
     const hashedPassword = await argon.hash(user.password);
+    const { roleNames, ...userData } = user;
 
     await prismaClient.user.create({
       data: {
-        ...user,
+        ...userData,
         password: hashedPassword,
         roles: {
-          createMany: { data: [{ name: 'user' }, { name: 'admin' }] },
+          connect: roleNames.map((role) => ({ name: role })),
         },
       },
     });
   }
 
-  console.log('User seeded.');
+  console.log('Users seeded.');
 };
 
 const seedStatus = async () => {

@@ -8,6 +8,8 @@ import extractUserId from 'src/utils/functions/extractUserId';
 import notFound from 'src/utils/functions/notFound';
 import * as argon from 'argon2';
 import { JwtService } from '@nestjs/jwt';
+import { Prisma } from '@prisma/client';
+import { PaginationDefault } from 'src/utils/enums/enum';
 
 @Injectable()
 export class UserService {
@@ -113,6 +115,59 @@ export class UserService {
           question: user.secretQuestion.question || null,
           answer: user.secretAnswer || null,
         },
+      };
+    } catch (error) {
+      errorHandler(error, this.logger);
+    }
+  }
+
+  async findUserTicketsByUserId(userId: number, query: FindAllDto) {
+    try {
+      const user = await this.prismaService.user.findFirst({
+        where: { id: userId },
+      });
+
+      if (!user) notFound('User', userId);
+
+      const { search, offset, limit } = query;
+
+      const where: Prisma.TicketWhereInput = {
+        issuerId: userId,
+        ...(search && {
+          OR: [
+            { title: { contains: search, mode: 'insensitive' } },
+            { description: { contains: search, mode: 'insensitive' } },
+          ],
+        }),
+      };
+
+      const tickets = await this.prismaService.ticket.findMany({
+        where,
+        include: {
+          serviceReports: true,
+          comments: true,
+          activities: true,
+          assignedUser: {
+            select: { firstName: true, lastName: true, department: true },
+          },
+          issuer: {
+            select: { firstName: true, lastName: true, department: true },
+          },
+          category: true,
+          department: true,
+          priorityLevel: true,
+          status: true,
+        },
+        skip: offset || PaginationDefault.OFFSET,
+        take: limit || PaginationDefault.LIMIT,
+      });
+
+      const count = await this.prismaService.ticket.count({ where });
+
+      return {
+        message: `Tickets of the user with the id ${userId} loaded successfully.`,
+        tickets,
+        count,
       };
     } catch (error) {
       errorHandler(error, this.logger);

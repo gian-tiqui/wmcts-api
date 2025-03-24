@@ -73,13 +73,12 @@ export class TicketService {
           category: true,
           issuer: { include: { department: true } },
           assignedUser: true,
+          priorityLevel: true,
         },
       });
       const count = await this.prismaService.ticket.count({ where });
 
       convertDatesToString(tickets);
-
-      console.log(tickets[0]);
 
       return {
         message: `Tickets loaded successfully.`,
@@ -95,9 +94,26 @@ export class TicketService {
     try {
       const ticket = await this.prismaService.ticket.findFirst({
         where: { id },
+        include: {
+          serviceReports: true,
+          comments: true,
+          activities: true,
+          assignedUser: {
+            select: { firstName: true, lastName: true, department: true },
+          },
+          issuer: {
+            select: { firstName: true, lastName: true, department: true },
+          },
+          category: true,
+          department: true,
+          priorityLevel: true,
+          status: true,
+        },
       });
 
       if (!ticket) notFound('Ticket', id);
+
+      convertDatesToString([ticket]);
 
       return {
         message: `Ticket with the id ${id} loaded successfully.`,
