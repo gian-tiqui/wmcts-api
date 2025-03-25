@@ -51,8 +51,21 @@ export class CommentService {
     return `This action returns all comment`;
   }
 
-  findOne(ticketId: number) {
-    return `This action returns a #${ticketId} comment`;
+  async findOne(commentId: number) {
+    try {
+      const comment = await this.prismaService.comment.findFirst({
+        where: { id: commentId },
+      });
+
+      if (!comment) notFound(`Comment`, commentId);
+
+      return {
+        message: `Comment with the id ${commentId} loaded successfully.`,
+        comment,
+      };
+    } catch (error) {
+      errorHandler(error, this.logger);
+    }
   }
 
   async upload(
@@ -107,39 +120,59 @@ export class CommentService {
     }
   }
 
-  async update(ticketId: number, updateCommentDto: UpdateCommentDto) {
+  async update(
+    commentId: number,
+    updateCommentDto: UpdateCommentDto,
+    accessToken: string,
+  ) {
     try {
-      const ticket = this.prismaService.ticket.findFirst({
-        where: { id: ticketId },
-      });
+      const userId = extractUserId(accessToken, this.jwtService);
 
-      if (!ticket) notFound(`Ticket`, ticketId);
+      const [user, comment] = await Promise.all([
+        this.prismaService.user.findFirst({
+          where: { id: userId },
+        }),
+        this.prismaService.comment.findFirst({
+          where: { id: commentId },
+        }),
+      ]);
+
+      if (!user) notFound(`User`, userId);
+      if (!comment) notFound(`Comment`, commentId);
 
       await this.prismaService.comment.update({
-        where: { id: ticketId },
+        where: { id: commentId },
         data: { ...updateCommentDto },
       });
 
       return {
-        message: `Ticket with the id ${ticketId} updated successfully.`,
+        message: `Comment with the id ${commentId} updated successfully.`,
       };
     } catch (error) {
       errorHandler(error, this.logger);
     }
   }
 
-  async remove(ticketId: number) {
+  async remove(commentId: number, accessToken: string) {
     try {
-      const ticket = this.prismaService.ticket.findFirst({
-        where: { id: ticketId },
-      });
+      const userId = extractUserId(accessToken, this.jwtService);
 
-      if (!ticket) notFound(`Ticket`, ticketId);
+      const [user, comment] = await Promise.all([
+        this.prismaService.user.findFirst({
+          where: { id: userId },
+        }),
+        this.prismaService.comment.findFirst({
+          where: { id: commentId },
+        }),
+      ]);
 
-      await this.prismaService.comment.delete({ where: { id: ticketId } });
+      if (!user) notFound(`User`, userId);
+      if (!comment) notFound(`Comment`, commentId);
+
+      await this.prismaService.comment.delete({ where: { id: commentId } });
 
       return {
-        message: `Ticket with the id ${ticketId} deleted successfully.`,
+        message: `Comment with the id ${commentId} deleted successfully.`,
       };
     } catch (error) {
       errorHandler(error, this.logger);

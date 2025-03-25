@@ -30,11 +30,20 @@ export class TicketService {
 
       if (!user) notFound('User', userId);
 
-      await this.prismaService.ticket.create({
+      const newTicket = await this.prismaService.ticket.create({
         data: {
           ...createTicketDto,
           issuerId: user.id,
           statusId: 1,
+        },
+      });
+
+      await this.prismaService.activity.create({
+        data: {
+          activity: `This Ticket is created by ${user.firstName} ${user.lastName}`,
+          title: `Ticket Created`,
+          ticketId: newTicket.id,
+          icon: '',
         },
       });
 
@@ -96,7 +105,9 @@ export class TicketService {
         where: { id },
         include: {
           serviceReports: true,
-          comments: true,
+          comments: {
+            include: { user: { select: { firstName: true, lastName: true } } },
+          },
           activities: true,
           assignedUser: {
             select: { firstName: true, lastName: true, department: true },
@@ -114,6 +125,8 @@ export class TicketService {
       if (!ticket) notFound('Ticket', id);
 
       convertDatesToString([ticket]);
+      convertDatesToString([...ticket.comments.map((comment) => comment)]);
+      convertDatesToString([...ticket.activities]);
 
       return {
         message: `Ticket with the id ${id} loaded successfully.`,

@@ -29,7 +29,7 @@ export class CommentController {
   constructor(private readonly commentService: CommentService) {}
 
   @Post()
-  create(@Body() createCommentDto: CreateCommentDto, @Req() req) {
+  create(@Body() createCommentDto: CreateCommentDto, @Req() req: Request) {
     try {
       const accessToken = extractAccessToken(req);
 
@@ -88,12 +88,32 @@ export class CommentController {
   update(
     @Param('commentId', ParseIntPipe) commentId: number,
     @Body() updateCommentDto: UpdateCommentDto,
+    @Req() req: Request,
   ) {
-    return this.commentService.update(commentId, updateCommentDto);
+    try {
+      const accessToken = extractAccessToken(req);
+
+      return this.commentService.update(
+        commentId,
+        updateCommentDto,
+        accessToken,
+      );
+    } catch (error) {
+      errorHandler(error, this.logger);
+    }
   }
 
   @Delete(':commentId')
-  remove(@Param('commentId', ParseIntPipe) commentId: number) {
-    return this.commentService.remove(commentId);
+  remove(
+    @Param('commentId', ParseIntPipe) commentId: number,
+    @Req() req: Request,
+  ) {
+    try {
+      const accessToken = extractAccessToken(req);
+
+      return this.commentService.remove(commentId, accessToken);
+    } catch (error) {
+      errorHandler(error, this.logger);
+    }
   }
 }
