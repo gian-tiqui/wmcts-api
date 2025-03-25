@@ -22,6 +22,8 @@ enum PaginationDefault {
 
 enum Directory {
   UPLOAD = 'uploads',
+  COMMENT_IMAGES = 'comment',
+  SERVICE_REPORT = 'service_reports',
 }
 
 export { Messages, LogMethod, LogType, PaginationDefault, Directory };

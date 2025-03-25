@@ -8,6 +8,7 @@ import { DepartmentModule } from './department/department.module';
 import { SecretQuestionModule } from './secret-question/secret-question.module';
 import { TicketModule } from './ticket/ticket.module';
 import { PriorityLevelModule } from './priority-level/priority-level.module';
+import { CommentModule } from './comment/comment.module';
 
 @Module({
   imports: [
@@ -22,6 +23,7 @@ import { PriorityLevelModule } from './priority-level/priority-level.module';
     SecretQuestionModule,
     TicketModule,
     PriorityLevelModule,
+    CommentModule,
   ],
   controllers: [],
   providers: [],

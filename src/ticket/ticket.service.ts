@@ -124,6 +124,26 @@ export class TicketService {
     }
   }
 
+  async findTicketCommentsById(ticketId: number) {
+    try {
+      const ticket = await this.prismaService.ticket.findFirst({
+        where: { id: ticketId },
+        include: { comments: true },
+      });
+
+      if (!ticket) notFound(`Ticket`, ticketId);
+
+      const { comments } = ticket;
+
+      return {
+        message: `Comments of the ticket with the id ${ticketId} loaded successfully`,
+        comments,
+      };
+    } catch (error) {
+      errorHandler(error, this.logger);
+    }
+  }
+
   update(id: number, updateTicketDto: UpdateTicketDto) {
     return `This action updates a #${id} ticket`;
   }

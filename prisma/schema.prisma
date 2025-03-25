@@ -112,7 +112,9 @@ model Ticket {
 
 model Activity {
   id                  Int           @id @default(autoincrement())
+  title               String
   activity            String
+  icon                String?
   createdAt           DateTime      @default(now())
   updatedAt           DateTime      @updatedAt
 
@@ -160,8 +162,8 @@ model ImageLocation {
   createdAt           DateTime      @default(now())
   updatedAt           DateTime      @updatedAt
 
-  serviceReportId     Int
-  serviceReport       ServiceReport @relation(fields: [serviceReportId], references: [id])
+  serviceReportId     Int?
+  serviceReport       ServiceReport? @relation(fields: [serviceReportId], references: [id])
   commentId           Int
   comment             Comment       @relation(fields: [commentId], references: [id])
 }
@@ -194,7 +196,7 @@ model Log {
   typeId              Int
   type                LogType       @relation(fields: [typeId], references: [id])     
   methodId            Int
-  method              LogMethod        @relation(fields: [methodId], references: [id])   
+  method              LogMethod     @relation(fields: [methodId], references: [id])   
   loggerId            Int
   logger              User          @relation(fields: [loggerId], references: [id])
 }
