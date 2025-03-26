@@ -1,5 +1,5 @@
 import { Ticket, User } from '@prisma/client';
-import { StatusIcons, TicketStatus } from '../enums/enum';
+import { PriorityLevel, StatusIcons, TicketStatus } from '../enums/enum';
 import { PrismaService } from 'src/prisma/prisma.service';
 import notFound from './notFound';
 import { UpdateTicketDto } from 'src/ticket/dto/update-ticket.dto';
@@ -15,165 +15,244 @@ const generateActivityMessage = async (
   let title: string;
   let assignedUser: User;
 
-  switch (statusId) {
-    case TicketStatus.NEW:
-      activity = `This Ticket was re-opened by ${user.firstName} ${user.lastName}`;
-      title = 'Ticket Re-opened';
+  if (updateTicketDto.title && ticket.title != updateTicketDto.title) {
+    title = `Ticket Title Changed`;
+    activity = `The ticket's title was changed from "${ticket.title}" to "${updateTicketDto.title}" by ${user.firstName} ${user.lastName}`;
 
-      await prismaService.activity.create({
-        data: {
-          title,
-          ticketId: ticket.id,
-          activity,
-          icon: StatusIcons.NEW,
-        },
-      });
+    await prismaService.activity.create({
+      data: {
+        title,
+        ticketId: ticket.id,
+        activity,
+        icon: 'pi pi-pencil',
+      },
+    });
+  }
 
-      break;
-    case TicketStatus.ACKNOWLEDGED:
-      activity = `This Ticket was acknowledged by ${user.firstName} ${user.lastName}`;
-      title = 'Ticket Acknowledged';
+  if (
+    updateTicketDto.description &&
+    ticket.description != updateTicketDto.description
+  ) {
+    title = `Ticket Description Changed`;
+    activity = `The ticket's description was changed from "${ticket.description}" to "${updateTicketDto.description}"`;
 
-      await prismaService.activity.create({
-        data: {
-          title,
-          ticketId: ticket.id,
-          activity,
-          icon: StatusIcons.ACKNOWLEDGED,
-        },
-      });
+    await prismaService.activity.create({
+      data: {
+        title,
+        ticketId: ticket.id,
+        activity,
+        icon: 'pi pi-pencil',
+      },
+    });
+  }
 
-      break;
-    case TicketStatus.ASSIGNED:
-      if (ticket.assignedUserId) {
-        assignedUser = await prismaService.user.findFirst({
-          where: { id: updateTicketDto.assignedUserId },
-        });
-
-        if (!assignedUser) notFound(`User`, ticket.assignedUserId);
-
-        activity = `This Ticket was escalated to ${assignedUser.firstName} ${assignedUser.lastName} by ${user.firstName} ${user.lastName}`;
-
-        title = 'Ticket Escalated';
+  if (updateTicketDto.priorityLevelId) {
+    switch (updateTicketDto.priorityLevelId) {
+      case PriorityLevel.LOW:
+        title = `Ticket Priority Level Changed`;
+        activity = `The ticket's priority level was set to ${PriorityLevel.LOW} by ${user.firstName} ${user.lastName}`;
 
         await prismaService.activity.create({
           data: {
             title,
             ticketId: ticket.id,
             activity,
-            icon: StatusIcons.ESCALATED,
+            icon: 'pi pi-info-circle',
           },
         });
-      } else {
-        assignedUser = await prismaService.user.findFirst({
-          where: { id: updateTicketDto.assignedUserId },
-        });
 
-        if (!assignedUser) notFound(`User`, ticket.assignedUserId);
-
-        activity = `This Ticket was assigned to ${assignedUser.firstName} ${assignedUser.lastName} by ${user.firstName} ${user.lastName}`;
-
-        title = 'Ticket Assigned';
+        break;
+      case PriorityLevel.MEDIUM:
+        title = `Ticket Priority Level Changed`;
+        activity = `The ticket's priority level was set to ${PriorityLevel.MEDIUM} by ${user.firstName} ${user.lastName}`;
 
         await prismaService.activity.create({
           data: {
             title,
             ticketId: ticket.id,
             activity,
-            icon: StatusIcons.ESCALATED,
+            icon: 'pi pi-info-circle',
           },
         });
-      }
 
-      break;
-    case TicketStatus.CANCELLED:
-      activity = `This Ticket was cancelled by ${user.firstName} ${user.lastName}`;
-      title = 'Ticket Cancelled';
+        break;
+      case PriorityLevel.HIGH:
+        title = `Ticket Priority Level Changed`;
+        activity = `The ticket's priority level was set to ${PriorityLevel.HIGH} by ${user.firstName} ${user.lastName}`;
 
-      await prismaService.activity.create({
-        data: {
-          title,
-          ticketId: ticket.id,
-          activity,
-          icon: StatusIcons.CANCELLED,
-        },
-      });
+        await prismaService.activity.create({
+          data: {
+            title,
+            ticketId: ticket.id,
+            activity,
+            icon: 'pi pi-info-circle',
+          },
+        });
 
-      break;
-    case TicketStatus.CLOSED:
-      activity = `This Ticket was closed by ${user.firstName} ${user.lastName}`;
-      title = 'Ticket Acknowledged';
+        break;
+    }
+  }
+  if (updateTicketDto.statusId) {
+    switch (statusId) {
+      case TicketStatus.NEW:
+        activity = `This Ticket was re-opened by ${user.firstName} ${user.lastName}`;
+        title = 'Ticket Re-opened';
 
-      await prismaService.activity.create({
-        data: {
-          title,
-          ticketId: ticket.id,
-          activity,
-          icon: StatusIcons.CLOSED,
-        },
-      });
+        await prismaService.activity.create({
+          data: {
+            title,
+            ticketId: ticket.id,
+            activity,
+            icon: StatusIcons.NEW,
+          },
+        });
 
-      break;
-    case TicketStatus.CLOSED_RESOLVED:
-      activity = `This Resolved Ticket was closed by ${user.firstName} ${user.lastName}`;
-      title = 'Ticket Closed-Resolved';
+        break;
+      case TicketStatus.ACKNOWLEDGED:
+        activity = `This Ticket was acknowledged by ${user.firstName} ${user.lastName}`;
+        title = 'Ticket Acknowledged';
 
-      await prismaService.activity.create({
-        data: {
-          title,
-          ticketId: ticket.id,
-          activity,
-          icon: StatusIcons.CLOSED_RESOLVED,
-        },
-      });
+        await prismaService.activity.create({
+          data: {
+            title,
+            ticketId: ticket.id,
+            activity,
+            icon: StatusIcons.ACKNOWLEDGED,
+          },
+        });
 
-      break;
-    case TicketStatus.ON_HOLD:
-      activity = `This Ticket is on-hold for now`;
-      title = 'Ticket On-Hold';
+        break;
+      case TicketStatus.ASSIGNED:
+        if (ticket.assignedUserId) {
+          assignedUser = await prismaService.user.findFirst({
+            where: { id: updateTicketDto.assignedUserId },
+          });
 
-      await prismaService.activity.create({
-        data: {
-          title,
-          ticketId: ticket.id,
-          activity,
-          icon: StatusIcons.ON_HOLD,
-        },
-      });
+          if (!assignedUser) notFound(`User`, ticket.assignedUserId);
 
-      break;
-    case TicketStatus.RESOLVED:
-      assignedUser = await prismaService.user.findFirst({
-        where: { id: updateTicketDto.assignedUserId },
-      });
+          activity = `This Ticket was escalated to ${assignedUser.firstName} ${assignedUser.lastName} by ${user.firstName} ${user.lastName}`;
 
-      activity = `This Ticket is resolved by ${assignedUser.firstName} ${assignedUser.lastName}`;
-      title = 'Ticket Resolved';
+          title = 'Ticket Escalated';
 
-      await prismaService.activity.create({
-        data: {
-          title,
-          ticketId: ticket.id,
-          activity,
-          icon: StatusIcons.RESOLVED,
-        },
-      });
+          await prismaService.activity.create({
+            data: {
+              title,
+              ticketId: ticket.id,
+              activity,
+              icon: StatusIcons.ESCALATED,
+            },
+          });
+        } else {
+          assignedUser = await prismaService.user.findFirst({
+            where: { id: updateTicketDto.assignedUserId },
+          });
 
-      break;
-    default:
-      activity = `This Ticket is a ticket`;
-      title = 'Ticket';
+          if (!assignedUser) notFound(`User`, ticket.assignedUserId);
 
-      await prismaService.activity.create({
-        data: {
-          title,
-          ticketId: ticket.id,
-          activity,
-          icon: StatusIcons.ON_HOLD,
-        },
-      });
+          activity = `This Ticket was assigned to ${assignedUser.firstName} ${assignedUser.lastName} by ${user.firstName} ${user.lastName}`;
 
-      break;
+          title = 'Ticket Assigned';
+
+          await prismaService.activity.create({
+            data: {
+              title,
+              ticketId: ticket.id,
+              activity,
+              icon: StatusIcons.ESCALATED,
+            },
+          });
+        }
+
+        break;
+      case TicketStatus.CANCELLED:
+        activity = `This Ticket was cancelled by ${user.firstName} ${user.lastName}`;
+        title = 'Ticket Cancelled';
+
+        await prismaService.activity.create({
+          data: {
+            title,
+            ticketId: ticket.id,
+            activity,
+            icon: StatusIcons.CANCELLED,
+          },
+        });
+
+        break;
+      case TicketStatus.CLOSED:
+        activity = `This Ticket was closed by ${user.firstName} ${user.lastName}`;
+        title = 'Ticket Acknowledged';
+
+        await prismaService.activity.create({
+          data: {
+            title,
+            ticketId: ticket.id,
+            activity,
+            icon: StatusIcons.CLOSED,
+          },
+        });
+
+        break;
+      case TicketStatus.CLOSED_RESOLVED:
+        activity = `This Resolved Ticket was closed by ${user.firstName} ${user.lastName}`;
+        title = 'Ticket Closed-Resolved';
+
+        await prismaService.activity.create({
+          data: {
+            title,
+            ticketId: ticket.id,
+            activity,
+            icon: StatusIcons.CLOSED_RESOLVED,
+          },
+        });
+
+        break;
+      case TicketStatus.ON_HOLD:
+        activity = `This Ticket is on-hold for now`;
+        title = 'Ticket On-Hold';
+
+        await prismaService.activity.create({
+          data: {
+            title,
+            ticketId: ticket.id,
+            activity,
+            icon: StatusIcons.ON_HOLD,
+          },
+        });
+
+        break;
+      case TicketStatus.RESOLVED:
+        assignedUser = await prismaService.user.findFirst({
+          where: { id: updateTicketDto.assignedUserId },
+        });
+
+        activity = `This Ticket is resolved by ${assignedUser.firstName} ${assignedUser.lastName}`;
+        title = 'Ticket Resolved';
+
+        await prismaService.activity.create({
+          data: {
+            title,
+            ticketId: ticket.id,
+            activity,
+            icon: StatusIcons.RESOLVED,
+          },
+        });
+
+        break;
+      default:
+        activity = `This Ticket is a ticket`;
+        title = 'Ticket';
+
+        await prismaService.activity.create({
+          data: {
+            title,
+            ticketId: ticket.id,
+            activity,
+            icon: StatusIcons.ON_HOLD,
+          },
+        });
+
+        break;
+    }
   }
 };
 

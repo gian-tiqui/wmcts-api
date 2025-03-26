@@ -1,21 +1,15 @@
-import {
-  IsNotEmpty,
-  IsInt,
-  IsString,
-  IsOptional,
-  IsDate,
-} from 'class-validator';
+import { IsInt, IsString, IsOptional, IsDate } from 'class-validator';
 
 export class UpdateTicketDto {
-  @IsNotEmpty()
+  @IsOptional()
   @IsInt()
   deptId: number;
 
-  @IsNotEmpty()
+  @IsOptional()
   @IsInt()
   categoryId: number;
 
-  @IsNotEmpty()
+  @IsOptional()
   @IsInt()
   priorityLevelId: number;
 

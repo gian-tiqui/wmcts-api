@@ -50,7 +50,14 @@ enum StatusIcons {
   ON_HOLD = 'pi pi-pause-circle',
 }
 
+enum PriorityLevel {
+  LOW = 1,
+  MEDIUM = 2,
+  HIGH = 3,
+}
+
 export {
+  PriorityLevel,
   StatusIcons,
   Messages,
   LogMethod,
