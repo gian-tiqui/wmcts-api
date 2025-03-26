@@ -26,4 +26,36 @@ enum Directory {
   SERVICE_REPORT = 'service_reports',
 }
 
-export { Messages, LogMethod, LogType, PaginationDefault, Directory };
+enum TicketStatus {
+  NEW = 1,
+  ACKNOWLEDGED = 2,
+  ASSIGNED = 3,
+  ESCALATED = 4,
+  RESOLVED = 5,
+  CLOSED = 6,
+  CLOSED_RESOLVED = 7,
+  CANCELLED = 8,
+  ON_HOLD = 9,
+}
+
+enum StatusIcons {
+  NEW = 'pi pi-plus',
+  ACKNOWLEDGED = 'pi pi-check',
+  ASSIGNED = 'pi pi-user-plus',
+  ESCALATED = 'pi pi-user-edit',
+  RESOLVED = 'pi pi-verified',
+  CLOSED = 'pi pi-lock',
+  CLOSED_RESOLVED = 'pi pi-list-check',
+  CANCELLED = 'pi pi-cancel',
+  ON_HOLD = 'pi pi-pause-circle',
+}
+
+export {
+  StatusIcons,
+  Messages,
+  LogMethod,
+  LogType,
+  PaginationDefault,
+  Directory,
+  TicketStatus,
+};

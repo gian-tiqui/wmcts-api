@@ -226,9 +226,9 @@ const seedStatus = async () => {
     'ESCALATED',
     'RESOLVED',
     'CLOSED',
-    'CLOSED-RESOLVED',
+    'CLOSED_RESOLVED',
     'CANCELLED',
-    'ON-HOLD',
+    'ON_HOLD',
   ];
 
   await prismaClient.status.createMany({

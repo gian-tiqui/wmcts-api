@@ -9,6 +9,7 @@ import {
   Logger,
   Req,
   Query,
+  ParseIntPipe,
 } from '@nestjs/common';
 import { TicketService } from './ticket.service';
 import { CreateTicketDto } from './dto/create-ticket.dto';
@@ -39,18 +40,28 @@ export class TicketController {
     return this.ticketService.findAll(query);
   }
 
-  @Get(':id')
-  findOne(@Param('id') id: string) {
-    return this.ticketService.findOne(+id);
+  @Get(':ticketId')
+  findOne(@Param('ticketId', ParseIntPipe) ticketId: number) {
+    return this.ticketService.findOne(+ticketId);
   }
 
-  @Patch(':id')
-  update(@Param('id') id: string, @Body() updateTicketDto: UpdateTicketDto) {
-    return this.ticketService.update(+id, updateTicketDto);
+  @Patch(':ticketId')
+  update(
+    @Param('ticketId', ParseIntPipe) ticketId: number,
+    @Body() updateTicketDto: UpdateTicketDto,
+    @Req() req: Request,
+  ) {
+    try {
+      const accessToken = extractAccessToken(req);
+
+      return this.ticketService.update(ticketId, updateTicketDto, accessToken);
+    } catch (error) {
+      errorHandler(error, this.ticketLogger);
+    }
   }
 
-  @Delete(':id')
-  remove(@Param('id') id: string) {
-    return this.ticketService.remove(+id);
+  @Delete(':ticketId')
+  remove(@Param('ticketId', ParseIntPipe) ticketId: number) {
+    return this.ticketService.remove(+ticketId);
   }
 }

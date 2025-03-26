@@ -10,6 +10,7 @@ import { FindAllDto } from 'src/utils/common/find-all.dto';
 import { Prisma } from '@prisma/client';
 import { PaginationDefault } from 'src/utils/enums/enum';
 import convertDatesToString from 'src/utils/functions/convertDatesToString';
+import generateActivityMessage from 'src/utils/functions/generateActivityMessage';
 
 @Injectable()
 export class TicketService {
@@ -43,7 +44,7 @@ export class TicketService {
           activity: `This Ticket is created by ${user.firstName} ${user.lastName}`,
           title: `Ticket Created`,
           ticketId: newTicket.id,
-          icon: '',
+          icon: 'pi pi-ticket',
         },
       });
 
@@ -99,10 +100,10 @@ export class TicketService {
     }
   }
 
-  async findOne(id: number) {
+  async findOne(ticketId: number) {
     try {
       const ticket = await this.prismaService.ticket.findFirst({
-        where: { id },
+        where: { id: ticketId },
         include: {
           serviceReports: true,
           comments: {
@@ -122,14 +123,14 @@ export class TicketService {
         },
       });
 
-      if (!ticket) notFound('Ticket', id);
+      if (!ticket) notFound('Ticket', ticketId);
 
       convertDatesToString([ticket]);
       convertDatesToString([...ticket.comments.map((comment) => comment)]);
       convertDatesToString([...ticket.activities]);
 
       return {
-        message: `Ticket with the id ${id} loaded successfully.`,
+        message: `Ticket with the id ${ticketId} loaded successfully.`,
         ticket,
       };
     } catch (error) {
@@ -157,11 +158,45 @@ export class TicketService {
     }
   }
 
-  update(id: number, updateTicketDto: UpdateTicketDto) {
-    return `This action updates a #${id} ticket`;
+  async update(
+    ticketId: number,
+    updateTicketDto: UpdateTicketDto,
+    accessToken: string,
+  ) {
+    try {
+      const userId = extractUserId(accessToken, this.jwtService);
+      const [user, ticket] = await Promise.all([
+        this.prismaService.user.findFirst({ where: { id: userId } }),
+        this.prismaService.ticket.findFirst({
+          where: { id: ticketId },
+        }),
+      ]);
+
+      if (!ticket) notFound(`Ticket`, ticketId);
+      if (!user) notFound(`User`, userId);
+
+      generateActivityMessage(
+        updateTicketDto.statusId,
+        user,
+        this.prismaService,
+        ticket,
+        updateTicketDto,
+      );
+
+      await this.prismaService.ticket.update({
+        where: { id: ticketId },
+        data: updateTicketDto,
+      });
+
+      return {
+        message: `Ticket with the id ${ticketId} updated successfully.`,
+      };
+    } catch (error) {
+      errorHandler(error, this.logger);
+    }
   }
 
-  remove(id: number) {
-    return `This action removes a #${id} ticket`;
+  remove(ticketId: number) {
+    return `This action removes a #${ticketId} ticket`;
   }
 }
