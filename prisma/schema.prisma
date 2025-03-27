@@ -49,6 +49,7 @@ model User {
   logs                Log[]   
   issuedTickets       Ticket[]      @relation("Issued")
   assignedTickets     Ticket[]      @relation("Assigned")
+  serviceReports      ServiceReport[]
 }
 
 model Role {
@@ -91,6 +92,7 @@ model Ticket {
   createdAt           DateTime      @default(now())
   updatedAt           DateTime      @updatedAt
   acknowledgedAt      DateTime?
+  reportRequired      Boolean       @default(false)
 
   issuerId            Int
   issuer              User          @relation("Issued", fields: [issuerId], references: [id])        
@@ -152,6 +154,8 @@ model ServiceReport {
 
   ticketId            Int
   ticket              Ticket        @relation(fields: [ticketId], references: [id])
+  serviceReporterId   Int
+  serviceReporter     User          @relation(fields: [serviceReporterId], references: [id])
 
   imageLocations      ImageLocation[]
 }

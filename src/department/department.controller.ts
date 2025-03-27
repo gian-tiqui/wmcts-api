@@ -69,6 +69,17 @@ export class DepartmentController {
     return this.departmentService.findDepartmentCategoriesById(deptId, query);
   }
 
+  @Get(':deptId/user')
+  findDepartmentUsersByDepartmentId(
+    @Param('deptId', ParseIntPipe) deptId: number,
+    @Query() query: FindAllDto,
+  ) {
+    return this.departmentService.findDepartmentUsersByDepartmentId(
+      deptId,
+      query,
+    );
+  }
+
   @RateLimit({
     keyPrefix: 'update-department',
     points: 10,

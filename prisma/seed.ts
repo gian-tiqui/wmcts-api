@@ -198,6 +198,15 @@ const seedUsers = async () => {
       deptId: 3,
       roleNames: ['user'],
     },
+    {
+      firstName: 'Andy',
+      lastName: 'Pagasa',
+      username: 'APAGASA',
+      email: 'apagasa@westlakemed.com',
+      password: 'abcd_123',
+      deptId: 9,
+      roleNames: ['user', 'admin'],
+    },
   ];
 
   for (const user of users) {

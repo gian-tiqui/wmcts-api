@@ -7,6 +7,8 @@ import { JwtService } from '@nestjs/jwt';
 import errorHandler from 'src/utils/functions/errorHandler';
 import { Prisma } from '@prisma/client';
 import { PaginationDefault } from 'src/utils/enums/enum';
+import notFound from 'src/utils/functions/notFound';
+import insertfullName from 'src/utils/functions/insertFullName';
 
 @Injectable()
 export class DepartmentService {
@@ -82,6 +84,45 @@ export class DepartmentService {
       return {
         message: `Categories of the department ${deptId} loaded successfully.`,
         categories,
+        count,
+      };
+    } catch (error) {
+      errorHandler(error, this.logger);
+    }
+  }
+
+  async findDepartmentUsersByDepartmentId(deptId: number, query: FindAllDto) {
+    try {
+      const department = await this.prismaService.department.findFirst({
+        where: { id: deptId },
+      });
+
+      if (!department) notFound(`Department`, deptId);
+
+      const { search, offset, limit } = query;
+
+      const where: Prisma.UserWhereInput = {
+        deptId,
+        ...(search && {
+          OR: [
+            { firstName: { contains: search, mode: 'insensitive' } },
+            { middleName: { contains: search, mode: 'insensitive' } },
+            { lastName: { contains: search, mode: 'insensitive' } },
+          ],
+        }),
+      };
+
+      const users = await this.prismaService.user.findMany({
+        where,
+        skip: offset || PaginationDefault.OFFSET,
+        take: limit || PaginationDefault.LIMIT,
+      });
+
+      const count = await this.prismaService.user.count({ where });
+
+      return {
+        message: `Users of the department with the id ${deptId} loaded successfully.`,
+        users: insertfullName(users),
         count,
       };
     } catch (error) {

@@ -1,4 +1,11 @@
-import { IsInt, IsNotEmpty, IsOptional, IsString } from 'class-validator';
+import { Transform } from 'class-transformer';
+import {
+  IsBoolean,
+  IsInt,
+  IsNotEmpty,
+  IsOptional,
+  IsString,
+} from 'class-validator';
 
 export class CreateTicketDto {
   @IsNotEmpty()
@@ -20,4 +27,9 @@ export class CreateTicketDto {
   @IsOptional()
   @IsString()
   description: string;
+
+  @IsNotEmpty()
+  @Transform(({ value }) => Number(value) === 1)
+  @IsBoolean()
+  reportRequired: boolean;
 }

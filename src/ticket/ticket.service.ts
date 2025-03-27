@@ -158,6 +158,25 @@ export class TicketService {
     }
   }
 
+  async uploadServiceReports(
+    ticketId: number,
+    accessToken: string,
+    files: Express.Multer.File[],
+  ) {
+    try {
+      const serviceReporterId = extractUserId(accessToken, this.jwtService);
+
+      const { id } = await this.prismaService.serviceReport.create({
+        data: {
+          ticketId,
+          serviceReporterId,
+        },
+      });
+    } catch (error) {
+      errorHandler(error, this.logger);
+    }
+  }
+
   async update(
     ticketId: number,
     updateTicketDto: UpdateTicketDto,

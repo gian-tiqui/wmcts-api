@@ -9,6 +9,7 @@ import { SecretQuestionModule } from './secret-question/secret-question.module';
 import { TicketModule } from './ticket/ticket.module';
 import { PriorityLevelModule } from './priority-level/priority-level.module';
 import { CommentModule } from './comment/comment.module';
+import { StatusModule } from './status/status.module';
 
 @Module({
   imports: [
@@ -24,6 +25,7 @@ import { CommentModule } from './comment/comment.module';
     TicketModule,
     PriorityLevelModule,
     CommentModule,
+    StatusModule,
   ],
   controllers: [],
   providers: [],

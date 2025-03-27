@@ -10,6 +10,7 @@ import {
   Req,
   Query,
   ParseIntPipe,
+  UploadedFiles,
 } from '@nestjs/common';
 import { TicketService } from './ticket.service';
 import { CreateTicketDto } from './dto/create-ticket.dto';
@@ -43,6 +44,25 @@ export class TicketController {
   @Get(':ticketId')
   findOne(@Param('ticketId', ParseIntPipe) ticketId: number) {
     return this.ticketService.findOne(+ticketId);
+  }
+
+  @Post(':ticketId/serviceReport')
+  uploadTicketServiceReportById(
+    @Param('ticketId', ParseIntPipe) ticketId: number,
+    @UploadedFiles() files: Express.Multer.File[],
+    @Req() req: Request,
+  ) {
+    try {
+      const accessToken = extractAccessToken(req);
+
+      return this.ticketService.uploadServiceReports(
+        ticketId,
+        accessToken,
+        files,
+      );
+    } catch (error) {
+      errorHandler(error, this.ticketLogger);
+    }
   }
 
   @Patch(':ticketId')

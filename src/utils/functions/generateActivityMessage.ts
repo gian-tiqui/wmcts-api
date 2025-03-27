@@ -123,45 +123,45 @@ const generateActivityMessage = async (
 
         break;
       case TicketStatus.ASSIGNED:
-        if (ticket.assignedUserId) {
-          assignedUser = await prismaService.user.findFirst({
-            where: { id: updateTicketDto.assignedUserId },
-          });
+        assignedUser = await prismaService.user.findFirst({
+          where: { id: updateTicketDto.assignedUserId },
+        });
 
-          if (!assignedUser) notFound(`User`, ticket.assignedUserId);
+        if (!assignedUser) notFound(`User`, ticket.assignedUserId);
 
-          activity = `This Ticket was escalated to ${assignedUser.firstName} ${assignedUser.lastName} by ${user.firstName} ${user.lastName}`;
+        activity = `This Ticket was assigned to ${assignedUser.firstName} ${assignedUser.lastName} by ${user.firstName} ${user.lastName}`;
 
-          title = 'Ticket Escalated';
+        title = 'Ticket Assigned';
 
-          await prismaService.activity.create({
-            data: {
-              title,
-              ticketId: ticket.id,
-              activity,
-              icon: StatusIcons.ESCALATED,
-            },
-          });
-        } else {
-          assignedUser = await prismaService.user.findFirst({
-            where: { id: updateTicketDto.assignedUserId },
-          });
+        await prismaService.activity.create({
+          data: {
+            title,
+            ticketId: ticket.id,
+            activity,
+            icon: StatusIcons.ESCALATED,
+          },
+        });
 
-          if (!assignedUser) notFound(`User`, ticket.assignedUserId);
+        break;
+      case TicketStatus.ESCALATED:
+        assignedUser = await prismaService.user.findFirst({
+          where: { id: updateTicketDto.assignedUserId },
+        });
 
-          activity = `This Ticket was assigned to ${assignedUser.firstName} ${assignedUser.lastName} by ${user.firstName} ${user.lastName}`;
+        if (!assignedUser) notFound(`User`, updateTicketDto.assignedUserId);
 
-          title = 'Ticket Assigned';
+        activity = `This Ticket was escalated to ${assignedUser.firstName} ${assignedUser.lastName} by ${user.firstName} ${user.lastName}`;
 
-          await prismaService.activity.create({
-            data: {
-              title,
-              ticketId: ticket.id,
-              activity,
-              icon: StatusIcons.ESCALATED,
-            },
-          });
-        }
+        title = 'Ticket Escalated';
+
+        await prismaService.activity.create({
+          data: {
+            title,
+            ticketId: ticket.id,
+            activity,
+            icon: StatusIcons.ESCALATED,
+          },
+        });
 
         break;
       case TicketStatus.CANCELLED:
