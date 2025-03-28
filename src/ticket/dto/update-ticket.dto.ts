@@ -32,4 +32,8 @@ export class UpdateTicketDto {
   @IsOptional()
   @IsDate()
   acknowledgedAt: Date;
+
+  @IsOptional()
+  @IsString()
+  closingReason: string;
 }

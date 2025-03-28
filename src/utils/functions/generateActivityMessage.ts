@@ -180,7 +180,7 @@ const generateActivityMessage = async (
         break;
       case TicketStatus.CLOSED:
         activity = `This Ticket was closed by ${user.firstName} ${user.lastName}`;
-        title = 'Ticket Acknowledged';
+        title = 'Ticket Closed';
 
         await prismaService.activity.create({
           data: {
