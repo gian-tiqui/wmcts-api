@@ -1,5 +1,5 @@
 import { Ticket, User } from '@prisma/client';
-import { PriorityLevel, StatusIcons, TicketStatus } from '../enums/enum';
+import { StatusIcons, TicketStatus } from '../enums/enum';
 import { PrismaService } from 'src/prisma/prisma.service';
 import notFound from './notFound';
 import { UpdateTicketDto } from 'src/ticket/dto/update-ticket.dto';
@@ -14,6 +14,26 @@ const generateActivityMessage = async (
   let activity: string;
   let title: string;
   let assignedUser: User;
+
+  if (updateTicketDto.priorityLevelId) {
+    const severity = await prismaService.priorityLevel.findFirst({
+      where: { id: updateTicketDto.priorityLevelId },
+    });
+    const prevSeverity = await prismaService.priorityLevel.findFirst({
+      where: { id: ticket.priorityLevelId },
+    });
+    title = `Ticket Severity changed`;
+    activity = `The ticket's severity was changed from ${prevSeverity.name} to ${severity.name} by ${user.firstName} ${user.lastName}`;
+
+    await prismaService.activity.create({
+      data: {
+        title,
+        ticketId: ticket.id,
+        activity,
+        icon: 'pi pi-info',
+      },
+    });
+  }
 
   if (updateTicketDto.title && ticket.title != updateTicketDto.title) {
     title = `Ticket Title Changed`;
@@ -46,52 +66,6 @@ const generateActivityMessage = async (
     });
   }
 
-  if (updateTicketDto.priorityLevelId) {
-    switch (updateTicketDto.priorityLevelId) {
-      case PriorityLevel.LOW:
-        title = `Ticket Priority Level Changed`;
-        activity = `The ticket's priority level was set to ${PriorityLevel.LOW} by ${user.firstName} ${user.lastName}`;
-
-        await prismaService.activity.create({
-          data: {
-            title,
-            ticketId: ticket.id,
-            activity,
-            icon: 'pi pi-info-circle',
-          },
-        });
-
-        break;
-      case PriorityLevel.MEDIUM:
-        title = `Ticket Priority Level Changed`;
-        activity = `The ticket's priority level was set to ${PriorityLevel.MEDIUM} by ${user.firstName} ${user.lastName}`;
-
-        await prismaService.activity.create({
-          data: {
-            title,
-            ticketId: ticket.id,
-            activity,
-            icon: 'pi pi-info-circle',
-          },
-        });
-
-        break;
-      case PriorityLevel.HIGH:
-        title = `Ticket Priority Level Changed`;
-        activity = `The ticket's priority level was set to ${PriorityLevel.HIGH} by ${user.firstName} ${user.lastName}`;
-
-        await prismaService.activity.create({
-          data: {
-            title,
-            ticketId: ticket.id,
-            activity,
-            icon: 'pi pi-info-circle',
-          },
-        });
-
-        break;
-    }
-  }
   if (updateTicketDto.statusId) {
     switch (statusId) {
       case TicketStatus.NEW:
