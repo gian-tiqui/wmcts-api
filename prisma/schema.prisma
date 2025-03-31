@@ -88,11 +88,13 @@ model Category {
 model Ticket {
   id                  Int           @id @default(autoincrement())
   title               String
+  resolution          String?
   closingReason       String?
   description         String        @db.Text      
   createdAt           DateTime      @default(now())
   updatedAt           DateTime      @updatedAt
   acknowledgedAt      DateTime?
+  resolutionTime      DateTime?
   reportRequired      Boolean       @default(false)
 
   issuerId            Int
@@ -136,7 +138,7 @@ model PriorityLevel {
 
 model Comment {
   id                  Int           @id @default(autoincrement())
-  comment             String        @db.Text
+  comment             String?        @db.Text
   createdAt           DateTime      @default(now())
   updatedAt           DateTime      @updatedAt
 
@@ -169,8 +171,8 @@ model ImageLocation {
 
   serviceReportId     Int?
   serviceReport       ServiceReport? @relation(fields: [serviceReportId], references: [id])
-  commentId           Int
-  comment             Comment       @relation(fields: [commentId], references: [id])
+  commentId           Int?
+  comment             Comment?      @relation(fields: [commentId], references: [id], onDelete: Cascade)
 }
 
 model LogType {

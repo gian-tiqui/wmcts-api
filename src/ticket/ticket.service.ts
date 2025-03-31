@@ -11,6 +11,11 @@ import { Prisma } from '@prisma/client';
 import { PaginationDefault } from 'src/utils/enums/enum';
 import convertDatesToString from 'src/utils/functions/convertDatesToString';
 import generateActivityMessage from 'src/utils/functions/generateActivityMessage';
+import convertAcknowledgeAt from 'src/utils/functions/convertAcknowledgeAt';
+import * as path from 'path';
+import { promises as fs } from 'fs';
+import { Directory } from 'src/utils/enums/enum';
+import generateUniqueSuffix from 'src/utils/functions/generateUniqueSuffix';
 
 @Injectable()
 export class TicketService {
@@ -58,7 +63,8 @@ export class TicketService {
 
   async findAll(query: FindAllDto) {
     try {
-      const { search, offset, limit, statusId, sortBy, sortOrder } = query;
+      const { search, offset, limit, statusId, sortBy, sortOrder, deptId } =
+        query;
       const where: Prisma.TicketWhereInput = {
         ...(search && {
           OR: [
@@ -66,11 +72,12 @@ export class TicketService {
               title: { contains: search, mode: 'insensitive' },
             },
             {
-              title: { contains: search, mode: 'insensitive' },
+              description: { contains: search, mode: 'insensitive' },
             },
           ],
         }),
         statusId,
+        ...(deptId && { deptId }),
       };
       const orderBy = sortBy ? { [sortBy]: sortOrder || 'asc' } : undefined;
 
@@ -105,7 +112,7 @@ export class TicketService {
       const ticket = await this.prismaService.ticket.findFirst({
         where: { id: ticketId },
         include: {
-          serviceReports: true,
+          serviceReports: { include: { imageLocations: true } },
           comments: {
             include: {
               user: { select: { firstName: true, lastName: true } },
@@ -131,6 +138,8 @@ export class TicketService {
       convertDatesToString([ticket]);
       convertDatesToString([...ticket.comments.map((comment) => comment)]);
       convertDatesToString([...ticket.activities]);
+
+      if (ticket.acknowledgedAt) convertAcknowledgeAt(ticket);
 
       return {
         message: `Ticket with the id ${ticketId} loaded successfully.`,
@@ -182,7 +191,32 @@ export class TicketService {
         },
       });
 
-      console.log(files);
+      if (files && files.length > 0) {
+        const dir = path.join(
+          __dirname,
+          '..',
+          '..',
+          '..',
+          Directory.UPLOAD,
+          Directory.SERVICE_REPORT,
+        );
+
+        await fs.mkdir(dir, { recursive: true });
+
+        for (const file of files) {
+          const fileName = generateUniqueSuffix(ticketId, file.originalname);
+          const filePath = path.join(dir, fileName);
+
+          await fs.writeFile(filePath, file.buffer);
+
+          await this.prismaService.imageLocation.create({
+            data: {
+              path: fileName,
+              serviceReportId: id,
+            },
+          });
+        }
+      }
     } catch (error) {
       errorHandler(error, this.logger);
     }

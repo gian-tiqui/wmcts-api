@@ -104,4 +104,9 @@ export class FindAllDto {
   @IsOptional()
   @Transform(({ value }) => parseInt(value, 10))
   statusId?: number;
+
+  @IsInt()
+  @IsOptional()
+  @Transform(({ value }) => parseInt(value, 10))
+  deptId?: number;
 }

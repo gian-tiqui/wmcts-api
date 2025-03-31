@@ -36,4 +36,12 @@ export class UpdateTicketDto {
   @IsOptional()
   @IsString()
   closingReason: string;
+
+  @IsOptional()
+  @IsDate()
+  resolvedAt: Date;
+
+  @IsOptional()
+  @IsString()
+  resolution: string;
 }

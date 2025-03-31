@@ -86,6 +86,13 @@ const generateActivityMessage = async (
         activity = `This Ticket was acknowledged by ${user.firstName} ${user.lastName}`;
         title = 'Ticket Acknowledged';
 
+        await prismaService.ticket.update({
+          where: { id: ticket.id },
+          data: {
+            acknowledgedAt: new Date(),
+          },
+        });
+
         await prismaService.activity.create({
           data: {
             title,
