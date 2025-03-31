@@ -107,7 +107,10 @@ export class TicketService {
         include: {
           serviceReports: true,
           comments: {
-            include: { user: { select: { firstName: true, lastName: true } } },
+            include: {
+              user: { select: { firstName: true, lastName: true } },
+              imageLocations: true,
+            },
           },
           activities: true,
           assignedUser: {
@@ -166,12 +169,20 @@ export class TicketService {
     try {
       const serviceReporterId = extractUserId(accessToken, this.jwtService);
 
+      const user = await this.prismaService.user.findFirst({
+        where: { id: serviceReporterId },
+      });
+
+      if (!user) notFound(`User`, serviceReporterId);
+
       const { id } = await this.prismaService.serviceReport.create({
         data: {
           ticketId,
           serviceReporterId,
         },
       });
+
+      console.log(files);
     } catch (error) {
       errorHandler(error, this.logger);
     }

@@ -49,8 +49,7 @@ export class CommentController {
     return this.commentService.findOne(commentId);
   }
 
-  @Post(':commentId')
-  @Post(':floorId/upload')
+  @Post(':commentId/upload')
   @UseInterceptors(
     FilesInterceptor('files', 20, {
       limits: { fileSize: 1024 * 1024 * 10 },
@@ -67,7 +66,7 @@ export class CommentController {
   @RateLimit({
     duration: 60,
     errorMessage: 'Please wait before uploading images for a room.',
-    keyPrefix: 'upload-room-image',
+    keyPrefix: 'upload-comment-image',
     points: 10,
   })
   upload(
