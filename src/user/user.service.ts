@@ -129,7 +129,7 @@ export class UserService {
 
       if (!user) notFound('User', userId);
 
-      const { search, offset, limit } = query;
+      const { search, offset, limit, statusId } = query;
 
       const where: Prisma.TicketWhereInput = {
         issuerId: userId,
@@ -139,6 +139,7 @@ export class UserService {
             { description: { contains: search, mode: 'insensitive' } },
           ],
         }),
+        ...(statusId && { statusId }),
       };
 
       const tickets = await this.prismaService.ticket.findMany({
