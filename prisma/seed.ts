@@ -187,7 +187,7 @@ const seedUsers = async () => {
       email: 'gian.tiqui.dev@gmail.com',
       password: 'abcd_123',
       deptId: 1,
-      roleNames: ['user', 'admin'],
+      roleNames: ['user'],
     },
     {
       firstName: 'Jonathan',
