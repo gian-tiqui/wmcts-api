@@ -1,3 +1,4 @@
+import { Type } from 'class-transformer';
 import { IsInt, IsString, IsOptional, IsDate } from 'class-validator';
 
 export class UpdateTicketDto {
@@ -44,4 +45,9 @@ export class UpdateTicketDto {
   @IsOptional()
   @IsString()
   resolution: string;
+
+  @IsOptional()
+  @IsDate()
+  @Type(() => Date)
+  resolutionTime: Date;
 }
