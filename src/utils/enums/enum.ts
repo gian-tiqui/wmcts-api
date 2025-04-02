@@ -56,7 +56,13 @@ enum PriorityLevel {
   HIGH = 3,
 }
 
+enum FileType {
+  PDF = 1,
+  IMAGE = 2,
+}
+
 export {
+  FileType,
   PriorityLevel,
   StatusIcons,
   Messages,

@@ -10,6 +10,7 @@ import * as path from 'path';
 import { promises as fs } from 'fs';
 import { Directory } from 'src/utils/enums/enum';
 import generateUniqueSuffix from 'src/utils/functions/generateUniqueSuffix';
+import getFileTypeId from 'src/utils/functions/getFileTypeId';
 
 @Injectable()
 export class CommentService {
@@ -102,10 +103,13 @@ export class CommentService {
 
           await fs.writeFile(filePath, file.buffer);
 
+          const fileTypeId = getFileTypeId(file);
+
           await this.prismaService.imageLocation.create({
             data: {
               path: fileName,
               commentId,
+              fileTypeId,
             },
           });
         }

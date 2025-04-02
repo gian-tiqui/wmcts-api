@@ -16,6 +16,7 @@ import * as path from 'path';
 import { promises as fs } from 'fs';
 import { Directory } from 'src/utils/enums/enum';
 import generateUniqueSuffix from 'src/utils/functions/generateUniqueSuffix';
+import getFileTypeId from 'src/utils/functions/getFileTypeId';
 
 @Injectable()
 export class TicketService {
@@ -112,14 +113,22 @@ export class TicketService {
       const ticket = await this.prismaService.ticket.findFirst({
         where: { id: ticketId },
         include: {
-          serviceReports: { include: { imageLocations: true } },
+          serviceReports: {
+            include: {
+              imageLocations: {
+                include: { fileType: true },
+                orderBy: { fileTypeId: 'asc' },
+              },
+              serviceReporter: { select: { firstName: true, lastName: true } },
+            },
+          },
           comments: {
             include: {
               user: { select: { firstName: true, lastName: true } },
               imageLocations: true,
             },
           },
-          activities: true,
+          activities: { orderBy: { createdAt: 'desc' } },
           assignedUser: {
             select: { firstName: true, lastName: true, department: true },
           },
@@ -138,6 +147,7 @@ export class TicketService {
       convertDatesToString([ticket]);
       convertDatesToString([...ticket.comments.map((comment) => comment)]);
       convertDatesToString([...ticket.activities]);
+      convertDatesToString([...ticket.serviceReports]);
 
       if (ticket.acknowledgedAt) convertAcknowledgeAt(ticket);
 
@@ -209,10 +219,13 @@ export class TicketService {
 
           await fs.writeFile(filePath, file.buffer);
 
+          const fileTypeId = getFileTypeId(file);
+
           await this.prismaService.imageLocation.create({
             data: {
               path: fileName,
               serviceReportId: id,
+              fileTypeId,
             },
           });
         }

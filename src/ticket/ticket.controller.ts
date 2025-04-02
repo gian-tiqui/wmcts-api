@@ -56,7 +56,12 @@ export class TicketController {
     FilesInterceptor('files', 20, {
       limits: { fileSize: 1024 * 1024 * 10 },
       fileFilter: (req, file, cb) => {
-        const allowedMimeTypes = ['image/jpeg', 'image/png', 'image/gif'];
+        const allowedMimeTypes = [
+          'image/jpeg',
+          'image/png',
+          'image/gif',
+          'application/pdf',
+        ];
         if (allowedMimeTypes.includes(file.mimetype)) {
           cb(null, true);
         } else {

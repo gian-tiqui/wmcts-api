@@ -227,6 +227,20 @@ const seedUsers = async () => {
   console.log('Users seeded.');
 };
 
+const seedFileTypes = async () => {
+  const types: string[] = ['pdf', 'image'];
+
+  await prismaClient.fileType.createMany({
+    data: [
+      ...types.map((type) => ({
+        type,
+      })),
+    ],
+  });
+
+  console.log('File types seeded');
+};
+
 const seedStatus = async () => {
   const statuses: string[] = [
     'NEW',
@@ -266,6 +280,7 @@ const seedPriorityLevel = async () => {
 };
 
 const main = async () => {
+  await seedFileTypes();
   await seedStatus();
   await seedEditMethods();
   await seedEditTypes();

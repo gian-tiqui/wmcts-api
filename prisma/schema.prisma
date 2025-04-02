@@ -173,6 +173,8 @@ model ImageLocation {
   serviceReport       ServiceReport? @relation(fields: [serviceReportId], references: [id])
   commentId           Int?
   comment             Comment?      @relation(fields: [commentId], references: [id], onDelete: Cascade)
+  fileTypeId          Int
+  fileType            FileType      @relation(fields: [fileTypeId], references: [id], onDelete: Cascade)
 }
 
 model LogType {
@@ -236,4 +238,13 @@ model SecretQuestion {
   updatedAt           DateTime      @updatedAt
 
   user                User[]
+}
+
+model FileType {
+  id                  Int           @id @default(autoincrement())
+  type                String        @unique
+  createdAt           DateTime      @default(now())
+  updatedAt           DateTime      @updatedAt
+
+  imageLocations      ImageLocation[]
 }
