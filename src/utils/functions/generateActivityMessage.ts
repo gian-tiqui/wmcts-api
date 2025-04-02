@@ -203,7 +203,7 @@ const generateActivityMessage = async (
         break;
       case TicketStatus.RESOLVED:
         assignedUser = await prismaService.user.findFirst({
-          where: { id: updateTicketDto.assignedUserId },
+          where: { id: ticket.assignedUserId },
         });
 
         activity = `This Ticket is resolved by ${assignedUser.firstName} ${assignedUser.lastName}`;
