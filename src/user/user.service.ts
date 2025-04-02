@@ -10,6 +10,7 @@ import * as argon from 'argon2';
 import { JwtService } from '@nestjs/jwt';
 import { Prisma } from '@prisma/client';
 import { PaginationDefault } from 'src/utils/enums/enum';
+import convertDatesToString from 'src/utils/functions/convertDatesToString';
 
 @Injectable()
 export class UserService {
@@ -164,6 +165,8 @@ export class UserService {
       });
 
       const count = await this.prismaService.ticket.count({ where });
+
+      convertDatesToString(tickets);
 
       return {
         message: `Tickets of the user with the id ${userId} loaded successfully.`,
