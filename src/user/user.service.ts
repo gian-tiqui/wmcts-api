@@ -195,6 +195,7 @@ export class UserService {
             { title: { contains: search, mode: 'insensitive' } },
           ],
         }),
+        userId,
       };
 
       const notifications = await this.prismaService.notification.findMany({
