@@ -74,8 +74,13 @@ export class AuthService {
 
       const passwordMatch = await argon.verify(user.password, password);
 
-      if (!passwordMatch)
+      if (!passwordMatch) {
+        this.logger.error(
+          `User with the username ${username} entered a wrong password.`,
+        );
+
         throw new BadRequestException(`You have entered the wrong password`);
+      }
 
       const accessToken = await this.signToken(
         user.id,
@@ -105,7 +110,7 @@ export class AuthService {
       }
 
       return {
-        message: 'User tokens loaded successfully.',
+        message: `User tokens of ${user.firstName} ${user.lastName} loaded successfully.`,
         tokens: { accessToken, refreshToken },
       };
     } catch (error) {
@@ -125,7 +130,10 @@ export class AuthService {
         include: { department: true, roles: true },
       });
 
-      if (!user) throw new NotFoundException(`Refresh token not found`);
+      if (!user) {
+        this.logger.error(`Refresh token not found : ${refreshToken}}`);
+        throw new NotFoundException(`Refresh token not found`);
+      }
 
       const accessToken = await this.signToken(
         user.id,
@@ -154,8 +162,12 @@ export class AuthService {
         data: { refreshToken: null },
       });
 
-      if (!logout)
+      if (!logout) {
+        this.logger.error(
+          `There was a problem in logging out the user with the id ${userId}`,
+        );
         throw new BadRequestException('There was a problem in logging out.');
+      }
 
       return {
         message: 'Logged out successfully.',

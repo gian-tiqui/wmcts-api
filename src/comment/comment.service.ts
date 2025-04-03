@@ -120,7 +120,6 @@ export class CommentService {
       };
     } catch (error) {
       errorHandler(error, this.logger);
-      throw error;
     }
   }
 
