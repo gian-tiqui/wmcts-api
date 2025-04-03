@@ -96,6 +96,7 @@ model Ticket {
   acknowledgedAt      DateTime?
   resolutionTime      DateTime?
   reportRequired      Boolean       @default(false)
+  pauseReason         String?       
 
   issuerId            Int
   issuer              User          @relation("Issued", fields: [issuerId], references: [id])        

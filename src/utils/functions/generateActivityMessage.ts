@@ -219,6 +219,8 @@ const generateActivityMessage = async (
         });
 
         break;
+      case TicketStatus.ON_HOLD:
+        break;
       default:
         activity = `This Ticket is a ticket`;
         title = 'Ticket';

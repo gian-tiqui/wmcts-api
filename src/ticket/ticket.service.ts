@@ -17,6 +17,7 @@ import { promises as fs } from 'fs';
 import { Directory } from 'src/utils/enums/enum';
 import generateUniqueSuffix from 'src/utils/functions/generateUniqueSuffix';
 import getFileTypeId from 'src/utils/functions/getFileTypeId';
+import convertResolutionTime from 'src/utils/functions/convertResolutionTime';
 
 @Injectable()
 export class TicketService {
@@ -121,6 +122,9 @@ export class TicketService {
               },
               serviceReporter: { select: { firstName: true, lastName: true } },
             },
+            orderBy: {
+              createdAt: 'desc',
+            },
           },
           comments: {
             include: {
@@ -150,6 +154,7 @@ export class TicketService {
       convertDatesToString([...ticket.serviceReports]);
 
       if (ticket.acknowledgedAt) convertAcknowledgeAt(ticket);
+      if (ticket.resolutionTime) convertResolutionTime(ticket);
 
       return {
         message: `Ticket with the id ${ticketId} loaded successfully.`,
@@ -230,6 +235,10 @@ export class TicketService {
           });
         }
       }
+
+      return {
+        message: 'Files uploaded successfully.',
+      };
     } catch (error) {
       errorHandler(error, this.logger);
     }

@@ -50,4 +50,8 @@ export class UpdateTicketDto {
   @IsDate()
   @Type(() => Date)
   resolutionTime: Date;
+
+  @IsOptional()
+  @IsString()
+  pauseReason: string;
 }
