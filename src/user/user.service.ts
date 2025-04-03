@@ -178,6 +178,45 @@ export class UserService {
     }
   }
 
+  async findUserNotificationsByUserId(userId: number, query: FindAllDto) {
+    try {
+      const user = await this.prismaService.user.findFirst({
+        where: { id: userId },
+      });
+
+      if (!user) notFound(`User`, userId);
+
+      const { search, offset, limit } = query;
+
+      const where: Prisma.NotificationWhereInput = {
+        ...(search && {
+          OR: [
+            { message: { contains: search, mode: 'insensitive' } },
+            { title: { contains: search, mode: 'insensitive' } },
+          ],
+        }),
+      };
+
+      const notifications = await this.prismaService.notification.findMany({
+        where,
+        skip: offset || PaginationDefault.OFFSET,
+        take: limit || PaginationDefault.LIMIT,
+        include: { ticket: true },
+        orderBy: { createdAt: 'desc' },
+      });
+
+      const count = await this.prismaService.notification.count({ where });
+
+      return {
+        message: `Notifications of ${user.firstName} ${user.lastName} (${user.id}) loaded successfully.`,
+        notifications,
+        count,
+      };
+    } catch (error) {
+      errorHandler(error, this.logger);
+    }
+  }
+
   async updateUserById(
     userId: number,
     updateUserDto: UpdateUserDto,

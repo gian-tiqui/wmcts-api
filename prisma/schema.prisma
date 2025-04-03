@@ -115,6 +115,7 @@ model Ticket {
   serviceReports      ServiceReport[]
   comments            Comment[]
   activities          Activity[]
+  notifications       Notification[]
 }
 
 model Activity {
@@ -262,4 +263,6 @@ model Notification {
 
   userId              Int
   user                User           @relation(fields: [userId], references: [id], onDelete: Cascade)
+  ticketId            Int
+  ticket              Ticket         @relation(fields: [ticketId], references: [id], onDelete: Cascade)
 }

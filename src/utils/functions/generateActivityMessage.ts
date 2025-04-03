@@ -106,7 +106,12 @@ const generateActivityMessage = async (
         message = `Your ticket "${ticket.title}" was acknowledged by ${user.firstName} ${user.lastName}`;
 
         await prismaService.notification.create({
-          data: { message, title, userId: ticket.issuerId },
+          data: {
+            message,
+            title,
+            userId: ticket.issuerId,
+            ticketId: ticket.id,
+          },
         });
 
         break;
@@ -133,7 +138,12 @@ const generateActivityMessage = async (
         message = `Your Ticket '${ticket.title}' was assigned to ${assignedUser.firstName} ${assignedUser.lastName}`;
 
         await prismaService.notification.create({
-          data: { message, title, userId: ticket.issuerId },
+          data: {
+            message,
+            title,
+            userId: ticket.issuerId,
+            ticketId: ticket.id,
+          },
         });
 
         break;
@@ -160,7 +170,12 @@ const generateActivityMessage = async (
         message = `Your Ticket '${ticket.title}' was escalated to ${assignedUser.firstName} ${assignedUser.lastName}`;
 
         await prismaService.notification.create({
-          data: { message, title, userId: ticket.issuerId },
+          data: {
+            message,
+            title,
+            userId: ticket.issuerId,
+            ticketId: ticket.id,
+          },
         });
 
         break;
@@ -192,9 +207,13 @@ const generateActivityMessage = async (
         });
 
         message = `Your Ticket '${ticket.title}' was closed by ${user.firstName} ${user.lastName}`;
-
         await prismaService.notification.create({
-          data: { message, title, userId: ticket.issuerId },
+          data: {
+            message,
+            title,
+            userId: ticket.issuerId,
+            ticketId: ticket.id,
+          },
         });
 
         break;
@@ -214,7 +233,12 @@ const generateActivityMessage = async (
         message = `Your Ticket '${ticket.title}' was closed resolved by ${user.firstName} ${user.lastName}`;
 
         await prismaService.notification.create({
-          data: { message, title, userId: ticket.assignedUserId },
+          data: {
+            message,
+            title,
+            userId: ticket.issuerId,
+            ticketId: ticket.id,
+          },
         });
 
         break;
@@ -234,7 +258,12 @@ const generateActivityMessage = async (
         message = `Your Ticket '${ticket.title}' was put on-hold by ${user.firstName} ${user.lastName}`;
 
         await prismaService.notification.create({
-          data: { message, title, userId: ticket.issuerId },
+          data: {
+            message,
+            title,
+            userId: ticket.issuerId,
+            ticketId: ticket.id,
+          },
         });
 
         break;
@@ -258,7 +287,12 @@ const generateActivityMessage = async (
         message = `Your Ticket '${ticket.title}' was resolved by ${user.firstName} ${user.lastName}`;
 
         await prismaService.notification.create({
-          data: { message, title, userId: ticket.issuerId },
+          data: {
+            message,
+            title,
+            userId: ticket.issuerId,
+            ticketId: ticket.id,
+          },
         });
 
         break;

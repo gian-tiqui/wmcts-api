@@ -93,6 +93,14 @@ export class UserController {
     return this.userService.findUserQuestionAndAnswerById(userId);
   }
 
+  @Get(':userId/notification')
+  findUserNotificationsByUserId(
+    @Param('userId', ParseIntPipe) userId: number,
+    @Query() query: FindAllDto,
+  ) {
+    return this.userService.findUserNotificationsByUserId(userId, query);
+  }
+
   @Patch(':userId')
   @RateLimit({
     duration: 60,
