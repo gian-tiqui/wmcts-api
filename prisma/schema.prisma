@@ -50,6 +50,7 @@ model User {
   issuedTickets       Ticket[]      @relation("Issued")
   assignedTickets     Ticket[]      @relation("Assigned")
   serviceReports      ServiceReport[]
+  notifications       Notification[]
 }
 
 model Role {
@@ -248,4 +249,17 @@ model FileType {
   updatedAt           DateTime      @updatedAt
 
   imageLocations      ImageLocation[]
+}
+
+model Notification {
+  id                  Int            @id @default(autoincrement())
+  title               String
+  message             String         @db.Text
+  viewed              Boolean        @default(false)
+
+  createdAt           DateTime       @default(now())
+  updatedAt           DateTime       @updatedAt
+
+  userId              Int
+  user                User           @relation(fields: [userId], references: [id], onDelete: Cascade)
 }
