@@ -11,6 +11,9 @@ import { PriorityLevelModule } from './priority-level/priority-level.module';
 import { CommentModule } from './comment/comment.module';
 import { StatusModule } from './status/status.module';
 import { NotificationModule } from './notification/notification.module';
+import { CategoriesModule } from './categories/categories.module';
+import { APP_GUARD } from '@nestjs/core';
+import { RateLimiterGuard, RateLimiterModule } from 'nestjs-rate-limiter';
 
 @Module({
   imports: [
@@ -28,8 +31,14 @@ import { NotificationModule } from './notification/notification.module';
     CommentModule,
     StatusModule,
     NotificationModule,
+    CategoriesModule,
+    RateLimiterModule,
   ],
-  controllers: [],
-  providers: [],
+  providers: [
+    {
+      provide: APP_GUARD,
+      useClass: RateLimiterGuard,
+    },
+  ],
 })
 export class AppModule {}

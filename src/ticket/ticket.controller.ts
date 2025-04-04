@@ -50,8 +50,14 @@ export class TicketController {
   }
 
   @Get(':ticketId')
+  @RateLimit({
+    duration: 60,
+    errorMessage: 'Please wait before loading a ticket.',
+    keyPrefix: 'find-ticket',
+    points: 10,
+  })
   findOne(@Param('ticketId', ParseIntPipe) ticketId: number) {
-    return this.ticketService.findOne(+ticketId);
+    return this.ticketService.findOne(ticketId);
   }
 
   @Post(':ticketId/serviceReport')
