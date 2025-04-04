@@ -10,6 +10,7 @@ import {
   Query,
   Req,
   Logger,
+  UseGuards,
 } from '@nestjs/common';
 import { SecretQuestionService } from './secret-question.service';
 import { CreateSecretQuestionDto } from './dto/create-secret-question.dto';
@@ -18,7 +19,9 @@ import { FindAllDto } from 'src/utils/common/find-all.dto';
 import errorHandler from 'src/utils/functions/errorHandler';
 import extractAccessToken from 'src/utils/functions/extractAccessToken';
 import { RateLimit } from 'nestjs-rate-limiter';
+import { JwtAuthGuard } from 'src/auth/guards/auth.guard';
 
+@UseGuards(JwtAuthGuard)
 @Controller('secret-question')
 export class SecretQuestionController {
   private logger: Logger = new Logger('SecretQuestionController');

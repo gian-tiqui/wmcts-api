@@ -12,6 +12,7 @@ import {
   UploadedFiles,
   Req,
   Logger,
+  UseGuards,
 } from '@nestjs/common';
 import { CommentService } from './comment.service';
 import { CreateCommentDto } from './dto/create-comment.dto';
@@ -21,7 +22,9 @@ import { RateLimit } from 'nestjs-rate-limiter';
 import { Messages } from 'src/utils/enums/enum';
 import errorHandler from 'src/utils/functions/errorHandler';
 import extractAccessToken from 'src/utils/functions/extractAccessToken';
+import { JwtAuthGuard } from 'src/auth/guards/auth.guard';
 
+@UseGuards(JwtAuthGuard)
 @Controller('comment')
 export class CommentController {
   private logger: Logger = new Logger('CommentController');

@@ -1,4 +1,4 @@
-import { Injectable, Logger } from '@nestjs/common';
+import { Injectable, Logger, UseGuards } from '@nestjs/common';
 import { CreatePriorityLevelDto } from './dto/create-priority-level.dto';
 import { UpdatePriorityLevelDto } from './dto/update-priority-level.dto';
 import { FindAllDto } from 'src/utils/common/find-all.dto';
@@ -6,7 +6,9 @@ import { PrismaService } from 'src/prisma/prisma.service';
 import errorHandler from 'src/utils/functions/errorHandler';
 import { Prisma } from '@prisma/client';
 import { PaginationDefault } from 'src/utils/enums/enum';
+import { JwtAuthGuard } from 'src/auth/guards/auth.guard';
 
+@UseGuards(JwtAuthGuard)
 @Injectable()
 export class PriorityLevelService {
   private logger: Logger = new Logger('PriorityLevelController');

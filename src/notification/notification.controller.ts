@@ -9,13 +9,16 @@ import {
   ParseIntPipe,
   Req,
   Logger,
+  UseGuards,
 } from '@nestjs/common';
 import { NotificationService } from './notification.service';
 import { CreateNotificationDto } from './dto/create-notification.dto';
 import { UpdateNotificationDto } from './dto/update-notification.dto';
 import errorHandler from 'src/utils/functions/errorHandler';
 import extractAccessToken from 'src/utils/functions/extractAccessToken';
+import { JwtAuthGuard } from 'src/auth/guards/auth.guard';
 
+@UseGuards(JwtAuthGuard)
 @Controller('notification')
 export class NotificationController {
   private logger: Logger = new Logger('NotificationController');

@@ -13,6 +13,7 @@ import {
   UploadedFiles,
   BadRequestException,
   UseInterceptors,
+  UseGuards,
 } from '@nestjs/common';
 import { TicketService } from './ticket.service';
 import { CreateTicketDto } from './dto/create-ticket.dto';
@@ -23,7 +24,9 @@ import { FindAllDto } from 'src/utils/common/find-all.dto';
 import { FilesInterceptor } from '@nestjs/platform-express';
 import { RateLimit } from 'nestjs-rate-limiter';
 import { Messages } from 'src/utils/enums/enum';
+import { JwtAuthGuard } from 'src/auth/guards/auth.guard';
 
+@UseGuards(JwtAuthGuard)
 @Controller('ticket')
 export class TicketController {
   private ticketLogger = new Logger('TicketController');
