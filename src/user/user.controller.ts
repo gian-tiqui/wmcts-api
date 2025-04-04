@@ -73,7 +73,7 @@ export class UserController {
     duration: 60,
     errorMessage: `Please wait before finding the user's tickets`,
     keyPrefix: 'find-user-tickets',
-    points: 10,
+    points: 500,
   })
   findUserTicketsById(
     @Param('userId', ParseIntPipe) userId: number,
