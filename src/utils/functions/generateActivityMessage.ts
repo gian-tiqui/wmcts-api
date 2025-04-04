@@ -3,6 +3,7 @@ import { StatusIcons, TicketStatus } from '../enums/enum';
 import { PrismaService } from 'src/prisma/prisma.service';
 import notFound from './notFound';
 import { UpdateTicketDto } from 'src/ticket/dto/update-ticket.dto';
+import { MailerService } from '@nestjs-modules/mailer';
 
 const generateActivityMessage = async (
   statusId: number,
@@ -10,11 +11,22 @@ const generateActivityMessage = async (
   prismaService: PrismaService,
   ticket: Ticket,
   updateTicketDto: UpdateTicketDto,
+  mailerService: MailerService,
 ) => {
   let activity: string;
   let title: string;
   let assignedUser: User;
   let message: string;
+
+  await mailerService.sendMail({
+    to: user.email,
+    subject: 'WMC Intranet Activation',
+    template: 'activity',
+    context: {
+      name: user.firstName,
+      id: ticket.id,
+    },
+  });
 
   if (updateTicketDto.priorityLevelId) {
     const severity = await prismaService.priorityLevel.findFirst({

@@ -18,6 +18,7 @@ import { Directory } from 'src/utils/enums/enum';
 import generateUniqueSuffix from 'src/utils/functions/generateUniqueSuffix';
 import getFileTypeId from 'src/utils/functions/getFileTypeId';
 import convertResolutionTime from 'src/utils/functions/convertResolutionTime';
+import { MailerService } from '@nestjs-modules/mailer';
 
 @Injectable()
 export class TicketService {
@@ -26,6 +27,7 @@ export class TicketService {
   constructor(
     private readonly prismaService: PrismaService,
     private readonly jwtService: JwtService,
+    private readonly mailerService: MailerService,
   ) {}
 
   async create(createTicketDto: CreateTicketDto, accessToken: string) {
@@ -267,6 +269,7 @@ export class TicketService {
         this.prismaService,
         ticket,
         updateTicketDto,
+        this.mailerService,
       );
 
       await this.prismaService.ticket.update({

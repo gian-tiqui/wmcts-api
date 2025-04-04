@@ -14,6 +14,8 @@ import { NotificationModule } from './notification/notification.module';
 import { CategoriesModule } from './categories/categories.module';
 import { APP_GUARD } from '@nestjs/core';
 import { RateLimiterGuard, RateLimiterModule } from 'nestjs-rate-limiter';
+import { MailerModule } from '@nestjs-modules/mailer';
+import { HandlebarsAdapter } from '@nestjs-modules/mailer/dist/adapters/handlebars.adapter';
 
 @Module({
   imports: [
@@ -22,6 +24,27 @@ import { RateLimiterGuard, RateLimiterModule } from 'nestjs-rate-limiter';
       serveRoot: '/uploads',
     }),
     ConfigModule.forRoot({ isGlobal: true }),
+    MailerModule.forRoot({
+      transport: {
+        host: process.env.MAIL_HOST,
+        port: 2525,
+        secure: false,
+        auth: {
+          user: process.env.MAIL_USERNAME,
+          pass: process.env.MAIL_PASSWORD,
+        },
+      },
+      defaults: {
+        from: '"No Reply" <no-reply@meow.com>',
+      },
+      template: {
+        dir: join(__dirname, '..', '..', 'src', 'template'),
+        adapter: new HandlebarsAdapter(),
+        options: {
+          strict: true,
+        },
+      },
+    }),
     AuthModule,
     UserModule,
     DepartmentModule,
@@ -40,5 +63,6 @@ import { RateLimiterGuard, RateLimiterModule } from 'nestjs-rate-limiter';
       useClass: RateLimiterGuard,
     },
   ],
+  exports: [MailerModule],
 })
 export class AppModule {}
