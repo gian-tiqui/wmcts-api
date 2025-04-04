@@ -7,6 +7,7 @@ import {
   Param,
   Delete,
   Query,
+  ParseIntPipe,
 } from '@nestjs/common';
 import { PriorityLevelService } from './priority-level.service';
 import { CreatePriorityLevelDto } from './dto/create-priority-level.dto';
@@ -19,36 +20,51 @@ export class PriorityLevelController {
   constructor(private readonly priorityLevelService: PriorityLevelService) {}
 
   @Post()
+  @RateLimit({
+    keyPrefix: 'create-priority-level',
+    points: 10,
+    duration: 60,
+    errorMessage: 'Please wait before creating priority level.',
+  })
   create(@Body() createPriorityLevelDto: CreatePriorityLevelDto) {
     return this.priorityLevelService.create(createPriorityLevelDto);
   }
 
+  @Get()
   @RateLimit({
     keyPrefix: 'find-priority-levels',
     points: 10,
     duration: 60,
     errorMessage: 'Please wait before finding priority levels.',
   })
-  @Get()
   findAll(@Query() query: FindAllDto) {
     return this.priorityLevelService.findAll(query);
   }
 
-  @Get(':id')
-  findOne(@Param('id') id: string) {
-    return this.priorityLevelService.findOne(+id);
+  @Get(':priorityLevelId')
+  @RateLimit({
+    keyPrefix: 'find-priority-level',
+    points: 10,
+    duration: 60,
+    errorMessage: 'Please wait before finding a priority level.',
+  })
+  findOne(@Param('priorityLevelId', ParseIntPipe) priorityLevelId: number) {
+    return this.priorityLevelService.findOne(priorityLevelId);
   }
 
-  @Patch(':id')
+  @Patch(':priorityLevelId')
   update(
-    @Param('id') id: string,
+    @Param('priorityLevelId', ParseIntPipe) priorityLevelId: number,
     @Body() updatePriorityLevelDto: UpdatePriorityLevelDto,
   ) {
-    return this.priorityLevelService.update(+id, updatePriorityLevelDto);
+    return this.priorityLevelService.update(
+      priorityLevelId,
+      updatePriorityLevelDto,
+    );
   }
 
-  @Delete(':id')
-  remove(@Param('id') id: string) {
-    return this.priorityLevelService.remove(+id);
+  @Delete(':priorityLevelId')
+  remove(@Param('priorityLevelId', ParseIntPipe) priorityLevelId: number) {
+    return this.priorityLevelService.remove(priorityLevelId);
   }
 }

@@ -32,6 +32,12 @@ export class CommentController {
   constructor(private readonly commentService: CommentService) {}
 
   @Post()
+  @RateLimit({
+    keyPrefix: 'create-comment',
+    points: 10,
+    duration: 60,
+    errorMessage: 'Please wait before creating a comment.',
+  })
   create(@Body() createCommentDto: CreateCommentDto, @Req() req: Request) {
     try {
       const accessToken = extractAccessToken(req);
@@ -43,16 +49,34 @@ export class CommentController {
   }
 
   @Get()
+  @RateLimit({
+    keyPrefix: 'get-comments',
+    points: 10,
+    duration: 60,
+    errorMessage: 'Please wait before loading the comments.',
+  })
   findAll() {
     return this.commentService.findAll();
   }
 
   @Get(':commentId')
+  @RateLimit({
+    keyPrefix: 'get-comment-by-id',
+    points: 10,
+    duration: 60,
+    errorMessage: 'Please wait before loading a comment.',
+  })
   findOne(@Param('commentId', ParseIntPipe) commentId: number) {
     return this.commentService.findOne(commentId);
   }
 
   @Post(':commentId/upload')
+  @RateLimit({
+    keyPrefix: 'update-comment',
+    points: 10,
+    duration: 60,
+    errorMessage: 'Please wait before updating a comment.',
+  })
   @UseInterceptors(
     FilesInterceptor('files', 20, {
       limits: { fileSize: 1024 * 1024 * 10 },
@@ -66,6 +90,7 @@ export class CommentController {
       },
     }),
   )
+  @Patch(':commentId')
   @RateLimit({
     duration: 60,
     errorMessage: 'Please wait before uploading images for a room.',
@@ -85,8 +110,6 @@ export class CommentController {
       errorHandler(error, this.logger);
     }
   }
-
-  @Patch(':commentId')
   update(
     @Param('commentId', ParseIntPipe) commentId: number,
     @Body() updateCommentDto: UpdateCommentDto,
@@ -106,6 +129,12 @@ export class CommentController {
   }
 
   @Delete(':commentId')
+  @RateLimit({
+    duration: 60,
+    errorMessage: 'Please wait before deleting a comment.',
+    keyPrefix: 'delete-comment',
+    points: 10,
+  })
   remove(
     @Param('commentId', ParseIntPipe) commentId: number,
     @Req() req: Request,
